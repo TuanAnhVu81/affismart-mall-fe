@@ -14,6 +14,7 @@ const config: Config = {
         ring: "var(--ring)",
         background: "var(--background)",
         foreground: "var(--foreground)",
+        surface: "var(--surface)",
         primary: {
           DEFAULT: "var(--primary)",
           foreground: "var(--primary-foreground)",
@@ -23,6 +24,14 @@ const config: Config = {
           foreground: "var(--secondary-foreground)",
         },
         destructive: "var(--destructive)",
+        success: {
+          DEFAULT: "var(--success)",
+          foreground: "var(--success-foreground)",
+        },
+        warning: {
+          DEFAULT: "var(--warning)",
+          foreground: "var(--warning-foreground)",
+        },
         muted: {
           DEFAULT: "var(--muted)",
           foreground: "var(--muted-foreground)",
@@ -54,6 +63,9 @@ const config: Config = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      boxShadow: {
+        soft: "0 20px 45px -28px rgba(17, 24, 39, 0.18)",
       },
     },
   },

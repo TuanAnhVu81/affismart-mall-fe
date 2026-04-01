@@ -7,7 +7,8 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
   title: "AffiSmart Mall",
-  description: "AffiSmart Mall frontend bootstrap with Next.js 14 and shadcn/ui.",
+  description:
+    "AffiSmart Mall frontend with Next.js 14, Tailwind CSS, and a shared Indigo design system.",
 };
 
 export default function RootLayout({
@@ -17,7 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi" className={cn("font-sans", inter.variable)}>
-      <body className="antialiased">{children}</body>
+      <body className="min-h-screen antialiased">{children}</body>
     </html>
   );
 }
