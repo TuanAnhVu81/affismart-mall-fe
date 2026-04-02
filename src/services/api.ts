@@ -3,18 +3,13 @@ import axios, {
   AxiosHeaders,
   InternalAxiosRequestConfig,
 } from "axios";
-import { useAuthStore, type AuthUser } from "@/store/auth.store";
-
-type RefreshResponse =
-  | {
-      accessToken?: string;
-      user?: AuthUser | null;
-      data?: {
-        accessToken?: string;
-        user?: AuthUser | null;
-      };
-    }
-  | undefined;
+import {
+  clearUiRoleCookie,
+  extractAuthResponse,
+  resolveUiRole,
+  setUiRoleCookie,
+} from "@/services/auth.service";
+import { useAuthStore } from "@/store/auth.store";
 
 interface RetryableRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
@@ -33,13 +28,6 @@ const attachAuthorizationHeader = (
   const headers = AxiosHeaders.from(config.headers);
   headers.set("Authorization", `Bearer ${accessToken}`);
   config.headers = headers;
-};
-
-const extractRefreshPayload = (payload: RefreshResponse) => {
-  const accessToken = payload?.accessToken ?? payload?.data?.accessToken ?? null;
-  const user = payload?.user ?? payload?.data?.user ?? null;
-
-  return { accessToken, user };
 };
 
 const redirectToLogin = () => {
@@ -62,20 +50,20 @@ let refreshPromise: Promise<string> | null = null;
 const refreshAccessToken = async () => {
   if (!refreshPromise) {
     refreshPromise = refreshClient
-      .post<RefreshResponse>("/auth/refresh")
+      .post("/auth/refresh")
       .then(({ data }) => {
-        const { accessToken, user } = extractRefreshPayload(data);
+        const authResponse = extractAuthResponse(data);
 
-        if (!accessToken) {
-          throw new Error("Refresh token response did not include accessToken.");
-        }
+        useAuthStore
+          .getState()
+          .setAuth(authResponse.user, authResponse.accessToken);
+        setUiRoleCookie(resolveUiRole(authResponse.user));
 
-        useAuthStore.getState().setAuth({ accessToken, user });
-
-        return accessToken;
+        return authResponse.accessToken;
       })
       .catch((error) => {
         useAuthStore.getState().clearAuth();
+        clearUiRoleCookie();
         throw error;
       })
       .finally(() => {

@@ -1,21 +1,11 @@
 import { create } from "zustand";
-
-type UserRole = "CUSTOMER" | "AFFILIATE" | "ADMIN";
-
-export interface AuthUser {
-  id: number;
-  email: string;
-  fullName?: string;
-  roles?: UserRole[];
-}
+import { type User } from "@/types/auth.types";
 
 interface AuthState {
+  user: User | null;
   accessToken: string | null;
-  user: AuthUser | null;
   isAuthenticated: boolean;
-  setAccessToken: (accessToken: string | null) => void;
-  setUser: (user: AuthUser | null) => void;
-  setAuth: (payload: { accessToken: string; user?: AuthUser | null }) => void;
+  setAuth: (user: User | null, accessToken: string) => void;
   clearAuth: () => void;
 }
 
@@ -27,16 +17,10 @@ const initialState = {
 
 export const useAuthStore = create<AuthState>((set) => ({
   ...initialState,
-  setAccessToken: (accessToken) =>
+  setAuth: (user, accessToken) =>
     set({
-      accessToken,
-      isAuthenticated: Boolean(accessToken),
-    }),
-  setUser: (user) => set({ user }),
-  setAuth: ({ accessToken, user = null }) =>
-    set({
-      accessToken,
       user,
+      accessToken,
       isAuthenticated: true,
     }),
   clearAuth: () => set(initialState),
