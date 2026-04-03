@@ -78,7 +78,7 @@ export const extractAuthResponse = (
 };
 
 const sanitizeRegisterPayload = (payload: RegisterRequest) => ({
-  fullName: payload.fullName,
+  full_name: payload.fullName,
   email: payload.email,
   password: payload.password,
 });

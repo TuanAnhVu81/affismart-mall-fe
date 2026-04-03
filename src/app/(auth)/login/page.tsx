@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/shared/PasswordInput";
 
 export default function LoginPage() {
   const loginMutation = useLogin();
@@ -38,36 +39,34 @@ export default function LoginPage() {
     <div className="grid w-full max-w-5xl gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
       <section className="hidden space-y-6 lg:block">
         <div className="inline-flex rounded-full border border-border bg-background/80 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground shadow-soft backdrop-blur">
-          Auth Flow
+          Commerce Access
         </div>
         <div className="space-y-4">
           <h1 className="max-w-xl text-4xl font-semibold tracking-tight text-foreground">
-            Sign in to manage your storefront, affiliates, and customer
-            journeys.
+            Sign in to your AffiSmart Mall workspace.
           </h1>
           <p className="max-w-xl text-base leading-7 text-muted-foreground">
-            This portfolio project demonstrates a production-minded auth
-            foundation with Next.js, Zustand, TanStack Query, and token refresh
-            via HttpOnly cookies.
+            Access your customer storefront, affiliate dashboard, or admin tools
+            with one secure account built for a modern commerce platform.
           </p>
         </div>
         <div className="grid max-w-xl gap-4 sm:grid-cols-2">
           <div className="rounded-3xl border border-border bg-card/90 p-5 shadow-soft">
             <p className="text-sm font-medium text-foreground">
-              Memory-only access token
+              Secure session recovery
             </p>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              Safer browser-side auth state with refresh handled via secure
-              cookies.
+              Access tokens stay in memory while refresh is handled through
+              secure cookies behind the scenes.
             </p>
           </div>
           <div className="rounded-3xl border border-border bg-card/90 p-5 shadow-soft">
             <p className="text-sm font-medium text-foreground">
-              Role-aware UX routing
+              Role-aware routing
             </p>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              Admin, affiliate, and customer users are redirected to the right
-              experience automatically.
+              Customers, affiliates, and admins are sent straight to the
+              experience built for them.
             </p>
           </div>
         </div>
@@ -79,7 +78,7 @@ export default function LoginPage() {
             Welcome back
           </CardTitle>
           <CardDescription className="text-sm leading-6">
-            Sign in with your email and password to continue.
+            Sign in with your email and password to continue to AffiSmart Mall.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -94,7 +93,7 @@ export default function LoginPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder="name@company.com"
                 autoComplete="email"
                 aria-invalid={Boolean(errors.email)}
                 {...register("email")}
@@ -111,10 +110,9 @@ export default function LoginPage() {
               >
                 Password
               </label>
-              <Input
+              <PasswordInput
                 id="password"
-                type="password"
-                placeholder="Enter your password"
+                placeholder="Enter your account password"
                 autoComplete="current-password"
                 aria-invalid={Boolean(errors.password)}
                 {...register("password")}
@@ -143,12 +141,12 @@ export default function LoginPage() {
           </form>
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
-            Don&apos;t have an account?{" "}
+            New to AffiSmart Mall?{" "}
             <Link
               href="/register"
               className="font-medium text-primary transition-colors hover:text-[var(--primary-hover)]"
             >
-              Create one
+              Create an account
             </Link>
           </p>
         </CardContent>

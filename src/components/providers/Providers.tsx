@@ -3,6 +3,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { PropsWithChildren, useState } from "react";
 import { Toaster } from "sonner";
+import { AuthInitializer } from "@/components/auth/AuthInitializer";
 
 export function Providers({ children }: PropsWithChildren) {
   const [queryClient] = useState(
@@ -23,6 +24,7 @@ export function Providers({ children }: PropsWithChildren) {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <AuthInitializer />
       {children}
       <Toaster
         closeButton

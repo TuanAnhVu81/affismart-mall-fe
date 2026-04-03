@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { PropsWithChildren } from "react";
 
@@ -11,8 +12,15 @@ export default function AuthLayout({ children }: PropsWithChildren) {
             href="/"
             className="inline-flex items-center gap-3 text-sm font-medium text-foreground transition-opacity hover:opacity-80"
           >
-            <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-base font-semibold text-primary-foreground shadow-soft">
-              A
+            <span className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl border border-border bg-white shadow-soft">
+              <Image
+                src="/logo.png"
+                alt="AffiSmart Mall logo"
+                width={48}
+                height={48}
+                priority
+                className="h-full w-full object-contain"
+              />
             </span>
             <span className="text-base font-semibold tracking-tight">
               AffiSmart Mall

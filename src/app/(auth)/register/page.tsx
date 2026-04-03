@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/shared/PasswordInput";
 
 export default function RegisterPage() {
   const registerMutation = useRegister();
@@ -41,11 +42,11 @@ export default function RegisterPage() {
       <Card className="order-2 mx-auto w-full max-w-md border border-border/80 bg-background/95 shadow-soft backdrop-blur lg:order-1">
         <CardHeader className="space-y-2">
           <CardTitle className="text-2xl font-semibold tracking-tight">
-            Create your account
+            Create your AffiSmart Mall account
           </CardTitle>
           <CardDescription className="text-sm leading-6">
-            Set up your account to explore the storefront and future protected
-            features.
+            Start as a customer today and unlock affiliate features as your
+            journey grows.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -99,10 +100,9 @@ export default function RegisterPage() {
               >
                 Password
               </label>
-              <Input
+              <PasswordInput
                 id="password"
-                type="password"
-                placeholder="Create a strong password"
+                placeholder="Create a secure password"
                 autoComplete="new-password"
                 aria-invalid={Boolean(errors.password)}
                 {...register("password")}
@@ -121,10 +121,9 @@ export default function RegisterPage() {
               >
                 Confirm password
               </label>
-              <Input
+              <PasswordInput
                 id="confirmPassword"
-                type="password"
-                placeholder="Re-enter your password"
+                placeholder="Enter the same password again"
                 autoComplete="new-password"
                 aria-invalid={Boolean(errors.confirmPassword)}
                 {...register("confirmPassword")}
@@ -166,36 +165,35 @@ export default function RegisterPage() {
 
       <section className="order-1 space-y-6 lg:order-2">
         <div className="inline-flex rounded-full border border-border bg-background/80 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground shadow-soft backdrop-blur">
-          Portfolio-ready authentication
+          Built for growth
         </div>
         <div className="space-y-4">
           <h1 className="max-w-xl text-4xl font-semibold tracking-tight text-foreground">
-            Build an account flow that feels product-ready from the very first
-            screen.
+            Join a commerce platform designed for customers, affiliates, and
+            operators.
           </h1>
           <p className="max-w-xl text-base leading-7 text-muted-foreground">
-            The auth module is intentionally structured to showcase clean state
-            management, role-based UX, and secure token handling for a modern
-            commerce application.
+            AffiSmart Mall brings storefront shopping, affiliate collaboration,
+            and admin oversight into one product-ready experience.
           </p>
         </div>
         <div className="grid max-w-xl gap-4 sm:grid-cols-2">
           <div className="rounded-3xl border border-border bg-card/90 p-5 shadow-soft">
             <p className="text-sm font-medium text-foreground">
-              React Hook Form + Zod
+              Clean onboarding flow
             </p>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              Typed validation with clear inline errors for a polished user
-              experience.
+              Typed validation and focused feedback keep account creation fast
+              and easy to complete.
             </p>
           </div>
           <div className="rounded-3xl border border-border bg-card/90 p-5 shadow-soft">
             <p className="text-sm font-medium text-foreground">
-              Ready for role-based growth
+              Scales with every role
             </p>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              The same flow will scale into customer, affiliate, and admin
-              journeys as the platform expands.
+              The same identity layer supports customer browsing, affiliate
+              applications, and admin management.
             </p>
           </div>
         </div>
