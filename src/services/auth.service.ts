@@ -175,8 +175,21 @@ export const register = async (payload: RegisterRequest) => {
 };
 
 export const logout = async () => {
+  const accessToken = useAuthStore.getState().accessToken;
+
   try {
-    await authClient.post("/auth/logout");
+    await authClient.post(
+      "/auth/logout",
+      {},
+      {
+        withCredentials: true,
+        headers: accessToken
+          ? {
+              Authorization: `Bearer ${accessToken}`,
+            }
+          : undefined,
+      },
+    );
   } finally {
     useAuthStore.getState().clearAuth();
     clearUiRoleCookie();
