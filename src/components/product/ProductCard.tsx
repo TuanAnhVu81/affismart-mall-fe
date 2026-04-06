@@ -16,6 +16,7 @@ const passthroughImageLoader = ({ src }: { src: string }) => src;
 export function ProductCard({ product }: ProductCardProps) {
   const isOutOfStock = product.stockQuantity <= 0;
   const isInactive = !product.isActive;
+  const categoryLabel = product.categoryName || "Uncategorized";
 
   return (
     <Card className="h-full border border-border/80 bg-background/95 py-0 shadow-soft transition-transform duration-200 hover:-translate-y-0.5">
@@ -35,8 +36,26 @@ export function ProductCard({ product }: ProductCardProps) {
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(79,70,229,0.16),_transparent_55%)] text-sm text-muted-foreground">
-              No image available
+            // Styled SVG placeholder for products without an image
+            <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-[radial-gradient(circle_at_top,_rgba(79,70,229,0.10),_transparent_60%)]">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="40"
+                height="40"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.25"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-muted-foreground/40"
+                aria-hidden="true"
+              >
+                <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                <circle cx="9" cy="9" r="2" />
+                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+              </svg>
+              <span className="text-xs text-muted-foreground/50">No image</span>
             </div>
           )}
 
@@ -51,7 +70,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
       <CardContent className="space-y-2 px-4 pb-3 pt-4">
         <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
-          {product.category.name}
+          {categoryLabel}
         </p>
         <Link
           href={`/products/${product.slug}`}
@@ -77,4 +96,3 @@ export function ProductCard({ product }: ProductCardProps) {
     </Card>
   );
 }
-

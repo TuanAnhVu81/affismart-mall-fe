@@ -6,14 +6,35 @@ import type {
   RegisterRequest,
   UiRole,
   User,
+  UserRole,
 } from "@/types/auth.types";
 
-type AuthResponseEnvelope =
-  | AuthResponse
-  | {
-      data?: AuthResponse;
-    }
-  | undefined;
+interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data?: T;
+}
+
+interface AuthUserPayload {
+  id: number;
+  email: string;
+  fullName?: string;
+  full_name?: string;
+  status?: string;
+  roles?: string[];
+}
+
+interface AuthTokenPayload {
+  accessToken?: string;
+  access_token?: string;
+  tokenType?: string;
+  token_type?: string;
+  expiresAt?: string;
+  expires_at?: string;
+  user?: AuthUserPayload;
+}
+
+type AuthPayload = ApiResponse<AuthTokenPayload> | undefined;
 
 const UI_ROLE_COOKIE = "ui_role";
 const LOGIN_PATH = "/login";
@@ -47,6 +68,65 @@ export const resolveUiRole = (user: User): UiRole => {
   return "CUSTOMER";
 };
 
+const normalizeRole = (role: string): UserRole | null => {
+  const normalizedRole = role.replace(/^ROLE_/, "").toUpperCase();
+
+  if (normalizedRole === "ADMIN") {
+    return "ADMIN";
+  }
+
+  if (normalizedRole === "AFFILIATE") {
+    return "AFFILIATE";
+  }
+
+  if (normalizedRole === "CUSTOMER") {
+    return "CUSTOMER";
+  }
+
+  return null;
+};
+
+const normalizeRoles = (roles: string[] | undefined): UserRole[] => {
+  if (!roles?.length) {
+    return ["CUSTOMER"];
+  }
+
+  const uniqueRoles = Array.from(
+    new Set(roles.map(normalizeRole).filter((role): role is UserRole => Boolean(role))),
+  );
+
+  return uniqueRoles.length ? uniqueRoles : ["CUSTOMER"];
+};
+
+const buildFallbackFullName = (email: string) => {
+  const [localPart = "User"] = email.split("@");
+  const normalized = localPart.replace(/[._-]+/g, " ").trim();
+  return normalized || "User";
+};
+
+const mapAuthUserToUser = (payload: AuthUserPayload): User => ({
+  id: payload.id,
+  email: payload.email,
+  fullName: payload.fullName ?? payload.full_name ?? buildFallbackFullName(payload.email),
+  status: payload.status,
+  roles: normalizeRoles(payload.roles),
+});
+
+export const extractAuthResponse = (payload: AuthPayload): AuthResponse => {
+  const authData = payload?.data;
+  const accessToken = authData?.accessToken ?? authData?.access_token;
+  const authUser = authData?.user;
+
+  if (!accessToken || !authUser) {
+    throw new Error("Invalid auth response payload.");
+  }
+
+  return {
+    accessToken,
+    user: mapAuthUserToUser(authUser),
+  };
+};
+
 export const setUiRoleCookie = (uiRole: UiRole) => {
   if (typeof document === "undefined") {
     return;
@@ -63,24 +143,11 @@ export const clearUiRoleCookie = () => {
   document.cookie = `${UI_ROLE_COOKIE}=; Max-Age=0; path=/; SameSite=Lax`;
 };
 
-export const extractAuthResponse = (
-  payload: AuthResponseEnvelope,
-): AuthResponse => {
-  const response = (
-    payload && "data" in payload ? payload.data : payload
-  ) as AuthResponse | undefined;
-
-  if (!response?.accessToken || !response.user) {
-    throw new Error("Invalid auth response payload.");
-  }
-
-  return response;
-};
-
 const sanitizeRegisterPayload = (payload: RegisterRequest) => ({
   full_name: payload.fullName,
   email: payload.email,
   password: payload.password,
+  phone: payload.phone,
 });
 
 const redirectToLogin = () => {
@@ -92,7 +159,7 @@ const redirectToLogin = () => {
 };
 
 export const login = async (payload: LoginRequest) => {
-  const { data } = await authClient.post<AuthResponseEnvelope>("/auth/login", payload);
+  const { data } = await authClient.post<AuthPayload>("/auth/login", payload);
   const authResponse = extractAuthResponse(data);
 
   useAuthStore.getState().setAuth(authResponse.user, authResponse.accessToken);
@@ -118,7 +185,7 @@ export const logout = async () => {
 };
 
 export const refreshToken = async () => {
-  const { data } = await authClient.post<AuthResponseEnvelope>("/auth/refresh");
+  const { data } = await authClient.post<AuthPayload>("/auth/refresh");
   const authResponse = extractAuthResponse(data);
 
   useAuthStore.getState().setAuth(authResponse.user, authResponse.accessToken);

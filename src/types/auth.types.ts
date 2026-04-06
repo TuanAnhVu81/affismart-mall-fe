@@ -13,6 +13,7 @@ export interface User {
   email: string;
   fullName: string;
   roles: UserRole[];
+  status?: string;
   affiliateStatus?: AffiliateStatus | null;
 }
 
@@ -25,6 +26,7 @@ export interface RegisterRequest {
   fullName: string;
   email: string;
   password: string;
+  phone?: string;
   confirmPassword?: string;
 }
 

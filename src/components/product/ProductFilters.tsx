@@ -2,23 +2,19 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import type { Category } from "@/types/product.types";
 
 interface ProductFiltersProps {
   categories: Category[];
 }
 
-const SEARCH_DEBOUNCE_MS = 500;
+interface FilterSelectOption {
+  value: string;
+  label: string;
+}
 
 const toPositiveNumberOrEmpty = (value: string) => {
   if (!value.trim()) {
@@ -35,27 +31,28 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
   const searchParams = useSearchParams();
   const searchParamsString = searchParams.toString();
 
-  const initialState = useMemo(
-    () => ({
-      search: searchParams.get("search") ?? "",
-      categoryId: searchParams.get("categoryId") ?? "all",
-      minPrice: searchParams.get("minPrice") ?? "",
-      maxPrice: searchParams.get("maxPrice") ?? "",
-      sortBy: searchParams.get("sortBy") ?? "newest",
-    }),
-    [searchParams],
-  );
+  const initialState = useMemo(() => {
+    const parsedSearchParams = new URLSearchParams(searchParamsString);
 
+    return {
+      search: parsedSearchParams.get("search") ?? "",
+      categoryId: parsedSearchParams.get("categoryId") ?? "all",
+      minPrice: parsedSearchParams.get("minPrice") ?? "",
+      maxPrice: parsedSearchParams.get("maxPrice") ?? "",
+      sortBy: parsedSearchParams.get("sortBy") ?? "newest",
+    };
+  }, [searchParamsString]);
+
+  const [searchInput, setSearchInput] = useState(initialState.search);
   const [search, setSearch] = useState(initialState.search);
-  const [debouncedSearch, setDebouncedSearch] = useState(initialState.search);
   const [categoryId, setCategoryId] = useState(initialState.categoryId);
   const [minPrice, setMinPrice] = useState(initialState.minPrice);
   const [maxPrice, setMaxPrice] = useState(initialState.maxPrice);
   const [sortBy, setSortBy] = useState(initialState.sortBy);
 
   useEffect(() => {
+    setSearchInput(initialState.search);
     setSearch(initialState.search);
-    setDebouncedSearch(initialState.search);
     setCategoryId(initialState.categoryId);
     setMinPrice(initialState.minPrice);
     setMaxPrice(initialState.maxPrice);
@@ -63,18 +60,10 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
   }, [initialState]);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setDebouncedSearch(search.trim());
-    }, SEARCH_DEBOUNCE_MS);
-
-    return () => window.clearTimeout(timer);
-  }, [search]);
-
-  useEffect(() => {
     const nextParams = new URLSearchParams(searchParamsString);
 
-    if (debouncedSearch) {
-      nextParams.set("search", debouncedSearch);
+    if (search) {
+      nextParams.set("search", search);
     } else {
       nextParams.delete("search");
     }
@@ -112,16 +101,17 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
     router.replace(nextHref, { scroll: false });
   }, [
     categoryId,
-    debouncedSearch,
     maxPrice,
     minPrice,
     pathname,
     router,
+    search,
     searchParamsString,
     sortBy,
   ]);
 
   const clearFilters = () => {
+    setSearchInput("");
     setSearch("");
     setCategoryId("all");
     setMinPrice("");
@@ -129,25 +119,60 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
     setSortBy("newest");
   };
 
+  const applySearch = () => {
+    setSearch(searchInput.trim());
+  };
+
+  const categoryOptions = useMemo<FilterSelectOption[]>(
+    () => [
+      { value: "all", label: "All categories" },
+      ...categories.map((category) => ({
+        value: String(category.id),
+        label: category.name,
+      })),
+    ],
+    [categories],
+  );
+
+  const sortOptions: FilterSelectOption[] = [
+    { value: "newest", label: "Newest first" },
+    { value: "price_asc", label: "Price: Low to high" },
+    { value: "price_desc", label: "Price: High to low" },
+  ];
+  const activeFilterCount = [
+    Boolean(search),
+    categoryId !== "all",
+    Boolean(minPrice),
+    Boolean(maxPrice),
+    sortBy !== "newest",
+  ].filter(Boolean).length;
+  const isSearchChanged = searchInput.trim() !== search;
+
   return (
-    <aside className="rounded-2xl border border-border bg-card/80 p-4 shadow-soft backdrop-blur">
-      <div className="mb-4 flex items-center justify-between">
-        <div className="inline-flex items-center gap-2 text-sm font-semibold text-foreground">
-          <SlidersHorizontal className="size-4 text-primary" />
-          Product filters
+    <aside className="rounded-3xl border border-border bg-card/80 p-5 shadow-soft backdrop-blur">
+      <div className="mb-5 flex items-start justify-between">
+        <div className="space-y-1">
+          <div className="inline-flex items-center gap-2 text-sm font-semibold text-foreground">
+            <SlidersHorizontal className="size-4 text-primary" />
+            Product filters
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Refine products by category, price, and sorting.
+          </p>
         </div>
         <Button
           variant="ghost"
           size="sm"
           onClick={clearFilters}
-          className="h-8 px-2.5 text-xs"
+          className="h-8 rounded-full px-3 text-xs"
+          disabled={activeFilterCount === 0}
         >
           <X className="size-3.5" />
           Reset
         </Button>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-5">
         <div className="space-y-2">
           <label
             htmlFor="product-search"
@@ -159,11 +184,26 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               id="product-search"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  applySearch();
+                }
+              }}
               placeholder="Search products..."
-              className="pl-9"
+              className="h-11 rounded-xl border-border/80 bg-background pl-9 pr-20"
             />
+            <Button
+              type="button"
+              size="sm"
+              onClick={applySearch}
+              disabled={!isSearchChanged}
+              className="absolute right-1.5 top-1/2 h-8 -translate-y-1/2 rounded-lg px-3 text-xs"
+            >
+              Search
+            </Button>
           </div>
         </div>
 
@@ -171,19 +211,21 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
           <label className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
             Category
           </label>
-          <Select value={categoryId} onValueChange={(val) => setCategoryId(val ?? "all")}>
-            <SelectTrigger className="h-10 w-full" data-slot="select-trigger">
-              <SelectValue placeholder="All categories" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All categories</SelectItem>
-              {categories.map((category) => (
-                <SelectItem key={category.id} value={String(category.id)}>
-                  {category.name}
-                </SelectItem>
+          <div className="relative">
+            <select
+              value={categoryId}
+              onChange={(event) => setCategoryId(event.target.value)}
+              className="h-11 w-full appearance-none rounded-xl border border-input bg-background px-4 pr-10 text-base text-foreground outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm"
+              aria-label="Category filter"
+            >
+              {categoryOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
               ))}
-            </SelectContent>
-          </Select>
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -204,6 +246,7 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
                 setMinPrice(toPositiveNumberOrEmpty(event.target.value))
               }
               placeholder="0"
+              className="h-11 rounded-xl border-border/80 bg-background"
             />
           </div>
           <div className="space-y-2">
@@ -223,6 +266,7 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
                 setMaxPrice(toPositiveNumberOrEmpty(event.target.value))
               }
               placeholder="5000000"
+              className="h-11 rounded-xl border-border/80 bg-background"
             />
           </div>
         </div>
@@ -231,21 +275,33 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
           <label className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
             Sort by
           </label>
-          <Select value={sortBy} onValueChange={(val) => setSortBy(val ?? "createdAt,desc")}>
-            <SelectTrigger className="h-10 w-full" data-slot="select-trigger">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="createdAt,desc">Newest first</SelectItem>
-              <SelectItem value="price,asc">Price: Low to high</SelectItem>
-              <SelectItem value="price,desc">Price: High to low</SelectItem>
-              <SelectItem value="name,asc">Name: A to Z</SelectItem>
-              <SelectItem value="name,desc">Name: Z to A</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="relative">
+            <select
+              value={sortBy}
+              onChange={(event) => setSortBy(event.target.value)}
+              className="h-11 w-full appearance-none rounded-xl border border-input bg-background px-4 pr-10 text-base text-foreground outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm"
+              aria-label="Sort products"
+            >
+              {sortOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          </div>
         </div>
+      </div>
+
+      <div className="mt-5 border-t border-border/70 pt-4">
+        <p className="text-xs text-muted-foreground">
+          {activeFilterCount === 0
+            ? "No active filters"
+            : `${activeFilterCount} active filter${
+                activeFilterCount === 1 ? "" : "s"
+              }`}
+        </p>
       </div>
     </aside>
   );
 }
-

@@ -3,43 +3,31 @@ export interface Category {
   name: string;
   slug: string;
   isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Product {
   id: number;
+  categoryId: number;
+  categoryName: string;
   name: string;
+  sku?: string;
   slug: string;
+  description?: string | null;
   price: number;
   stockQuantity: number;
   imageUrl: string | null;
-  category: Category;
   isActive: boolean;
-}
-
-export interface PageableSort {
-  sorted: boolean;
-  unsorted: boolean;
-  empty: boolean;
-}
-
-export interface Pageable {
-  pageNumber: number;
-  pageSize: number;
-  offset: number;
-  paged: boolean;
-  unpaged: boolean;
-  sort: PageableSort;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ProductListResponse {
   content: Product[];
-  pageable: Pageable;
+  page: number;
+  size: number;
   totalElements: number;
   totalPages: number;
-  size: number;
-  number: number;
-  numberOfElements: number;
-  first: boolean;
   last: boolean;
-  empty: boolean;
 }

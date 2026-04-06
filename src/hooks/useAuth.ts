@@ -2,7 +2,6 @@
 
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
-import { startTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { login, logout, register, resolveUiRole } from "@/services/auth.service";
@@ -45,7 +44,6 @@ const getPostLoginPath = (user: User) => {
 };
 
 export function useLogin() {
-  const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
 
   return useMutation<AuthResponse, unknown, LoginRequest>({
@@ -53,10 +51,12 @@ export function useLogin() {
     onSuccess: (data) => {
       setAuth(data.user, data.accessToken);
       toast.success("Signed in successfully.");
+      const nextPath = getPostLoginPath(data.user);
 
-      startTransition(() => {
-        router.replace(getPostLoginPath(data.user));
-      });
+      if (typeof window !== "undefined") {
+        window.location.assign(nextPath);
+        return;
+      }
     },
     onError: (error) => {
       toast.error(
@@ -73,10 +73,7 @@ export function useRegister() {
     mutationFn: register,
     onSuccess: () => {
       toast.success("Registration completed successfully.");
-
-      startTransition(() => {
-        router.replace("/login");
-      });
+      router.replace("/login");
     },
     onError: (error) => {
       toast.error(
