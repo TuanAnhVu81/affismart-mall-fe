@@ -1,10 +1,14 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ShoppingCart } from "lucide-react";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
+import { useCartStore } from "@/store/cart.store";
 import type { Product } from "@/types/product.types";
 
 interface ProductCardProps {
@@ -14,9 +18,29 @@ interface ProductCardProps {
 const passthroughImageLoader = ({ src }: { src: string }) => src;
 
 export function ProductCard({ product }: ProductCardProps) {
+  const addItem = useCartStore((state) => state.addItem);
+  const openDrawer = useCartStore((state) => state.openDrawer);
   const isOutOfStock = product.stockQuantity <= 0;
   const isInactive = !product.isActive;
   const categoryLabel = product.categoryName || "Uncategorized";
+  const canAddToCart = !isOutOfStock && !isInactive;
+
+  const handleAddToCart = () => {
+    if (!canAddToCart) {
+      return;
+    }
+
+    addItem({
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      imageUrl: product.imageUrl,
+      slug: product.slug,
+      quantity: 1,
+    });
+    openDrawer();
+    toast.success(`${product.name} added to cart.`);
+  };
 
   return (
     <Card className="h-full border border-border/80 bg-background/95 py-0 shadow-soft transition-transform duration-200 hover:-translate-y-0.5">
@@ -83,7 +107,16 @@ export function ProductCard({ product }: ProductCardProps) {
         </p>
       </CardContent>
 
-      <CardFooter className="mt-auto border-t border-border/70 bg-muted/20 px-4 py-3">
+      <CardFooter className="mt-auto grid grid-cols-2 gap-2 border-t border-border/70 bg-muted/20 px-4 py-3">
+        <Button
+          type="button"
+          className="w-full"
+          onClick={handleAddToCart}
+          disabled={!canAddToCart}
+        >
+          <ShoppingCart className="size-4" />
+          Add to cart
+        </Button>
         <Button
           render={<Link href={`/products/${product.slug}`} />}
           className="w-full"

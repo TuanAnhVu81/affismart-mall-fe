@@ -13,9 +13,7 @@ interface CategoryPayload {
   name: string;
   slug: string;
   active: boolean;
-  createdAt?: string;
   created_at?: string;
-  updatedAt?: string;
   updated_at?: string;
 }
 
@@ -37,8 +35,8 @@ const normalizeCategory = (category: CategoryPayload): Category => ({
   name: category.name,
   slug: category.slug,
   isActive: category.active,
-  createdAt: category.createdAt ?? category.created_at,
-  updatedAt: category.updatedAt ?? category.updated_at,
+  createdAt: category.created_at,
+  updatedAt: category.updated_at,
 });
 
 export const getActiveCategories = async () => {

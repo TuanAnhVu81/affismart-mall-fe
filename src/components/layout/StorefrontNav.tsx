@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { useMemo } from "react";
 import { usePathname } from "next/navigation";
-import { LogOut, UserCircle2 } from "lucide-react";
+import { LogOut, ShoppingBag, UserCircle2 } from "lucide-react";
+import { CartDrawer } from "@/components/cart/CartDrawer";
 import { useLogout } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/auth.store";
+import { useCartStore } from "@/store/cart.store";
 
 const getDisplayName = (fullName: string) => {
   const [firstName = "Account"] = fullName.trim().split(/\s+/);
@@ -18,6 +20,8 @@ export function StorefrontNav() {
   const logoutMutation = useLogout();
   const user = useAuthStore((state) => state.user);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const totalItems = useCartStore((state) => state.totalItems);
+  const openDrawer = useCartStore((state) => state.openDrawer);
 
   const displayName = useMemo(() => {
     if (!user?.fullName) {
@@ -65,6 +69,21 @@ export function StorefrontNav() {
         </Link>
       </div>
 
+      <button
+        type="button"
+        onClick={openDrawer}
+        className="relative inline-flex h-9 items-center gap-1.5 rounded-full border border-border/80 bg-background px-3 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+        aria-label="Open cart"
+      >
+        <ShoppingBag className="size-4" />
+        <span className="hidden sm:inline">Cart</span>
+        {totalItems > 0 ? (
+          <span className="absolute -right-1.5 -top-1.5 inline-flex min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-semibold leading-5 text-primary-foreground">
+            {totalItems > 99 ? "99+" : totalItems}
+          </span>
+        ) : null}
+      </button>
+
       {isAuthenticated && user ? (
         <div className="flex items-center gap-2">
           <span className="hidden items-center gap-1.5 rounded-full border border-border/80 bg-background px-3 py-1.5 text-sm text-foreground sm:inline-flex">
@@ -97,6 +116,8 @@ export function StorefrontNav() {
           </Link>
         </div>
       )}
+
+      <CartDrawer />
     </nav>
   );
 }

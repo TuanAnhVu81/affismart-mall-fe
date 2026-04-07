@@ -6,7 +6,6 @@ import { refreshToken } from "@/services/auth.service";
 import { useAuthStore } from "@/store/auth.store";
 
 interface ApiErrorPayload {
-  errorCode?: string;
   error_code?: string;
 }
 

@@ -16,7 +16,6 @@ interface RetryableRequestConfig extends InternalAxiosRequestConfig {
 }
 
 interface ApiErrorPayload {
-  errorCode?: string;
   error_code?: string;
 }
 
@@ -70,7 +69,7 @@ const getApiErrorCode = (error: unknown) => {
   }
 
   const payload = error.response?.data;
-  return payload?.errorCode ?? payload?.error_code ?? null;
+  return payload?.error_code ?? null;
 };
 
 const isRefreshConflict = (error: unknown) => {

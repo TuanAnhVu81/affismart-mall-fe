@@ -18,18 +18,14 @@ interface ApiResponse<T> {
 interface AuthUserPayload {
   id: number;
   email: string;
-  fullName?: string;
   full_name?: string;
   status?: string;
   roles?: string[];
 }
 
 interface AuthTokenPayload {
-  accessToken?: string;
   access_token?: string;
-  tokenType?: string;
   token_type?: string;
-  expiresAt?: string;
   expires_at?: string;
   user?: AuthUserPayload;
 }
@@ -107,14 +103,14 @@ const buildFallbackFullName = (email: string) => {
 const mapAuthUserToUser = (payload: AuthUserPayload): User => ({
   id: payload.id,
   email: payload.email,
-  fullName: payload.fullName ?? payload.full_name ?? buildFallbackFullName(payload.email),
+  fullName: payload.full_name ?? buildFallbackFullName(payload.email),
   status: payload.status,
   roles: normalizeRoles(payload.roles),
 });
 
 export const extractAuthResponse = (payload: AuthPayload): AuthResponse => {
   const authData = payload?.data;
-  const accessToken = authData?.accessToken ?? authData?.access_token;
+  const accessToken = authData?.access_token;
   const authUser = authData?.user;
 
   if (!accessToken || !authUser) {

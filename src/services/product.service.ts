@@ -12,32 +12,24 @@ interface PageResponse<T> {
   content: T[];
   page: number;
   size: number;
-  totalElements: number;
-  totalPages: number;
+  total_elements: number;
+  total_pages: number;
   last: boolean;
-  total_elements?: number;
-  total_pages?: number;
 }
 
 interface ProductPayload {
   id: number;
-  categoryId?: number;
   category_id?: number;
-  categoryName?: string;
   category_name?: string;
   name: string;
   sku?: string;
   slug: string;
   description?: string | null;
   price: number | string;
-  stockQuantity?: number;
   stock_quantity?: number;
-  imageUrl?: string | null;
   image_url?: string | null;
   active: boolean;
-  createdAt?: string;
   created_at?: string;
-  updatedAt?: string;
   updated_at?: string;
 }
 
@@ -79,18 +71,18 @@ const unwrapData = <T>(payload: ApiResponse<T> | T, errorMessage: string): T => 
 
 const normalizeProduct = (product: ProductPayload): Product => ({
   id: product.id,
-  categoryId: product.categoryId ?? product.category_id ?? 0,
-  categoryName: product.categoryName ?? product.category_name ?? "Uncategorized",
+  categoryId: product.category_id ?? 0,
+  categoryName: product.category_name ?? "Uncategorized",
   name: product.name,
   sku: product.sku,
   slug: product.slug,
   description: product.description ?? null,
   price: Number(product.price),
-  stockQuantity: product.stockQuantity ?? product.stock_quantity ?? 0,
-  imageUrl: product.imageUrl ?? product.image_url ?? null,
+  stockQuantity: product.stock_quantity ?? 0,
+  imageUrl: product.image_url ?? null,
   isActive: product.active,
-  createdAt: product.createdAt ?? product.created_at,
-  updatedAt: product.updatedAt ?? product.updated_at,
+  createdAt: product.created_at,
+  updatedAt: product.updated_at,
 });
 
 const normalizeProductList = (
@@ -99,8 +91,8 @@ const normalizeProductList = (
   content: response.content.map(normalizeProduct),
   page: response.page,
   size: response.size,
-  totalElements: response.totalElements ?? response.total_elements ?? 0,
-  totalPages: response.totalPages ?? response.total_pages ?? 0,
+  totalElements: response.total_elements ?? 0,
+  totalPages: response.total_pages ?? 0,
   last: response.last,
 });
 
