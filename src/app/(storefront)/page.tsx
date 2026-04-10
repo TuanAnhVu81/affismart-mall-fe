@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, PackageSearch } from "lucide-react";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Button } from "@/components/ui/button";
 import { getProducts } from "@/services/product.service";
@@ -31,8 +31,8 @@ export default async function HomePage() {
   const featuredProducts = await getFeaturedProducts();
 
   return (
-    <div className="space-y-14 py-8 sm:py-12">
-      <section className="relative overflow-hidden rounded-3xl border border-border bg-card/80 px-6 py-10 shadow-soft sm:px-10 sm:py-14">
+    <div className="space-y-20 py-8 sm:py-16">
+      <section className="relative overflow-hidden rounded-[2.5rem] border border-border bg-card/80 px-6 py-12 shadow-soft ring-1 ring-black/5 sm:px-12 sm:py-20 lg:p-24">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(79,70,229,0.24),_transparent_55%)]" />
         <div className="relative max-w-2xl space-y-6">
           <p className="inline-flex rounded-full border border-border bg-background/90 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
@@ -77,8 +77,11 @@ export default async function HomePage() {
         {/* Constrain featured grid to 2 cols max so single cards don't stretch full-width */}
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {featuredProducts.length === 0 ? (
-            <div className="col-span-full rounded-2xl border border-dashed border-border bg-muted/20 px-6 py-12 text-center">
-              <p className="text-lg font-semibold text-foreground">Catalog is getting ready</p>
+            <div className="col-span-full flex flex-col items-center justify-center rounded-3xl border border-border/60 bg-muted/20 px-6 py-16 text-center ring-1 ring-border/30">
+              <span className="mb-4 flex size-14 items-center justify-center rounded-full bg-background shadow-xs ring-1 ring-border/50">
+                <PackageSearch className="size-6 text-muted-foreground" />
+              </span>
+              <p className="text-xl font-semibold tracking-tight text-foreground">Catalog is getting ready</p>
               <p className="mt-2 text-sm text-muted-foreground">
                 Products will appear here once the backend catalog is populated.
               </p>

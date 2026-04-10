@@ -7,6 +7,8 @@ const UI_ROLE_COOKIE = "ui_role";
 const HOME_PATH = "/";
 const LOGIN_PATH = "/login";
 const AFFILIATE_PENDING_PATH = "/affiliate/pending";
+const CUSTOMER_PROTECTED_PREFIXES = ["/orders", "/profile"];
+const CUSTOMER_PROTECTED_EXACT = new Set(["/checkout"]);
 
 const getUiRole = (request: NextRequest) =>
   request.cookies.get(UI_ROLE_COOKIE)?.value as UiRole | undefined;
@@ -21,8 +23,11 @@ export function middleware(request: NextRequest) {
   const isAdminRoute = pathname.startsWith("/admin");
   const isAffiliateRoute = pathname.startsWith("/affiliate");
   const isAffiliatePendingRoute = pathname === AFFILIATE_PENDING_PATH;
+  const isCustomerRoute =
+    CUSTOMER_PROTECTED_EXACT.has(pathname) ||
+    CUSTOMER_PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 
-  if (!uiRole && (isAdminRoute || isAffiliateRoute)) {
+  if (!uiRole && (isAdminRoute || isAffiliateRoute || isCustomerRoute)) {
     return redirect(request, LOGIN_PATH);
   }
 
@@ -40,9 +45,13 @@ export function middleware(request: NextRequest) {
     }
   }
 
+  if (isCustomerRoute && uiRole !== "CUSTOMER") {
+    return redirect(request, HOME_PATH);
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/affiliate/:path*"],
+  matcher: ["/admin/:path*", "/affiliate/:path*", "/checkout", "/orders/:path*", "/profile/:path*"],
 };

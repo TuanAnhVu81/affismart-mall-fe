@@ -81,11 +81,13 @@ const isRefreshConflict = (error: unknown) => {
 };
 
 const isTerminalRefreshError = (error: unknown) => {
-  if (!axios.isAxiosError(error)) {
-    return true;
+  if (!axios.isAxiosError<ApiErrorPayload>(error)) {
+    return false;
   }
 
-  if (error.response?.status === 401) {
+  const status = error.response?.status;
+
+  if (status === 401) {
     const errorCode = getApiErrorCode(error);
     return !errorCode || TERMINAL_REFRESH_ERROR_CODES.has(errorCode);
   }

@@ -3,6 +3,8 @@ import type {
   CreateOrderPayload,
   CreateOrderResponse,
   GetMyOrdersParams,
+  OrderDetail,
+  OrderItemDetail,
   OrderListResponse,
   OrderSummary,
   PaymentSessionResponse,
@@ -28,6 +30,26 @@ interface OrderSummaryPayload {
   total_amount: number | string;
   shipping_address: string;
   created_at: string;
+}
+
+interface OrderItemDetailPayload {
+  product_id: number;
+  product_name: string;
+  product_sku?: string | null;
+  quantity: number;
+  price_at_time: number | string;
+  line_total: number | string;
+}
+
+interface OrderDetailPayload {
+  id: number;
+  status: string;
+  total_amount: number | string;
+  discount_amount?: number | string | null;
+  shipping_address: string;
+  created_at: string;
+  updated_at: string;
+  items: OrderItemDetailPayload[];
 }
 
 interface PageResponse<T> {
@@ -85,6 +107,26 @@ const toOrderSummary = (payload: OrderSummaryPayload): OrderSummary => ({
   totalAmount: Number(payload.total_amount),
   shippingAddress: payload.shipping_address,
   createdAt: payload.created_at,
+});
+
+const toOrderItemDetail = (payload: OrderItemDetailPayload): OrderItemDetail => ({
+  productId: payload.product_id,
+  productName: payload.product_name,
+  productSku: payload.product_sku ?? null,
+  quantity: payload.quantity,
+  priceAtTime: Number(payload.price_at_time),
+  lineTotal: Number(payload.line_total),
+});
+
+const toOrderDetail = (payload: OrderDetailPayload): OrderDetail => ({
+  id: payload.id,
+  status: payload.status as OrderDetail["status"],
+  totalAmount: Number(payload.total_amount),
+  discountAmount: Number(payload.discount_amount ?? 0),
+  shippingAddress: payload.shipping_address,
+  createdAt: payload.created_at,
+  updatedAt: payload.updated_at,
+  items: payload.items.map(toOrderItemDetail),
 });
 
 const toOrderListResponse = (
@@ -160,7 +202,15 @@ export const getMyOrders = async (params: GetMyOrdersParams = {}) => {
   return toOrderListResponse(payload);
 };
 
+export const getMyOrderDetail = async (orderId: number) => {
+  const { data } = await api.get<ApiResponse<OrderDetailPayload>>(
+    `/orders/my/${orderId}`,
+  );
+  const payload = unwrapData(data, "Invalid order detail response payload.");
+
+  return toOrderDetail(payload);
+};
+
 export const cancelOrder = async (orderId: number) => {
   await api.put(`/orders/my/${orderId}/cancel`);
 };
-

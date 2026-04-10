@@ -60,8 +60,11 @@ export function ProductCard({ product }: ProductCardProps) {
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             />
           ) : (
-            // Styled SVG placeholder for products without an image
-            <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-[radial-gradient(circle_at_top,_rgba(79,70,229,0.10),_transparent_60%)]">
+            // Premium mesh gradient placeholder for products without an image
+            <div className="relative flex h-full w-full flex-col items-center justify-center gap-2 overflow-hidden bg-muted/20">
+              <div className="absolute -left-1/4 -top-1/4 h-full w-full rounded-full bg-violet-500/20 blur-3xl" />
+              <div className="absolute -bottom-1/4 -right-1/4 h-full w-full rounded-full bg-indigo-500/20 blur-3xl" />
+              <div className="absolute left-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 rounded-full bg-fuchsia-500/10 blur-3xl" />
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="40"
@@ -102,12 +105,14 @@ export function ProductCard({ product }: ProductCardProps) {
         >
           {product.name}
         </Link>
-        <p className="text-lg font-semibold text-foreground">
-          {formatCurrency(product.price)}
-        </p>
+        <div className="mt-1 flex items-center justify-between">
+          <p className="text-[1.125rem] font-bold tracking-normal text-foreground">
+            {formatCurrency(product.price)}
+          </p>
+        </div>
       </CardContent>
 
-      <CardFooter className="mt-auto grid grid-cols-2 gap-2 border-t border-border/70 bg-muted/20 px-4 py-3">
+      <CardFooter className="mt-auto flex flex-col gap-2 border-t border-border/70 bg-muted/20 px-4 py-3">
         <Button
           type="button"
           className="w-full"
@@ -121,6 +126,7 @@ export function ProductCard({ product }: ProductCardProps) {
           render={<Link href={`/products/${product.slug}`} />}
           className="w-full"
           variant="outline"
+          nativeButton={false}
         >
           View details
           <ArrowRight className="size-4" />

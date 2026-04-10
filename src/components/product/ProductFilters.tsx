@@ -173,10 +173,10 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
       </div>
 
       <div className="space-y-5">
-        <div className="space-y-2">
+        <div className="space-y-2.5">
           <label
             htmlFor="product-search"
-            className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground"
+            className="px-1 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground"
           >
             Search
           </label>
@@ -193,29 +193,29 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
                 }
               }}
               placeholder="Search products..."
-              className="h-11 rounded-xl border-border/80 bg-background pl-9 pr-20"
+              className="h-11 rounded-xl border-border/60 bg-background/50 pl-9 pr-[5.5rem] shadow-sm"
             />
             <Button
               type="button"
               size="sm"
               onClick={applySearch}
               disabled={!isSearchChanged}
-              className="absolute right-1.5 top-1/2 h-8 -translate-y-1/2 rounded-lg px-3 text-xs"
+              className="absolute right-1.5 top-1/2 h-8 -translate-y-1/2 rounded-lg px-3.5 text-xs font-medium shadow-none"
             >
               Search
             </Button>
           </div>
         </div>
 
-        <div className="space-y-2">
-          <label className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+        <div className="space-y-2.5">
+          <label className="px-1 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
             Category
           </label>
           <div className="relative">
             <select
               value={categoryId}
               onChange={(event) => setCategoryId(event.target.value)}
-              className="h-11 w-full appearance-none rounded-xl border border-input bg-background px-4 pr-10 text-base text-foreground outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm"
+              className="h-11 w-full appearance-none rounded-xl border border-border/60 bg-background/50 px-4 pr-10 text-base text-foreground shadow-sm outline-none transition-colors hover:bg-background focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm"
               aria-label="Category filter"
             >
               {categoryOptions.map((option) => (
@@ -228,11 +228,11 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div className="space-y-2.5">
             <label
               htmlFor="min-price"
-              className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground"
+              className="px-1 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground"
             >
               Min price
             </label>
@@ -246,13 +246,13 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
                 setMinPrice(toPositiveNumberOrEmpty(event.target.value))
               }
               placeholder="0"
-              className="h-11 rounded-xl border-border/80 bg-background"
+              className="h-11 rounded-xl border-border/60 bg-background/50 shadow-sm"
             />
           </div>
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             <label
               htmlFor="max-price"
-              className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground"
+              className="px-1 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground"
             >
               Max price
             </label>
@@ -266,20 +266,20 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
                 setMaxPrice(toPositiveNumberOrEmpty(event.target.value))
               }
               placeholder="5000000"
-              className="h-11 rounded-xl border-border/80 bg-background"
+              className="h-11 rounded-xl border-border/60 bg-background/50 shadow-sm"
             />
           </div>
         </div>
 
-        <div className="space-y-2">
-          <label className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+        <div className="space-y-2.5">
+          <label className="px-1 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
             Sort by
           </label>
           <div className="relative">
             <select
               value={sortBy}
               onChange={(event) => setSortBy(event.target.value)}
-              className="h-11 w-full appearance-none rounded-xl border border-input bg-background px-4 pr-10 text-base text-foreground outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm"
+              className="h-11 w-full appearance-none rounded-xl border border-border/60 bg-background/50 px-4 pr-10 text-base text-foreground shadow-sm outline-none transition-colors hover:bg-background focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm"
               aria-label="Sort products"
             >
               {sortOptions.map((option) => (

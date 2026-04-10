@@ -5,6 +5,7 @@ import {
   cancelOrder,
   createOrder,
   createPaymentSession,
+  getMyOrderDetail,
   getMyOrders,
 } from "@/services/order.service";
 import type { CreateOrderPayload, GetMyOrdersParams } from "@/types/order.types";
@@ -31,6 +32,13 @@ export const useMyOrders = (params: GetMyOrdersParams = {}) =>
     queryFn: () => getMyOrders(params),
   });
 
+export const useMyOrderDetail = (orderId: number | null) =>
+  useQuery({
+    queryKey: ["order-detail", orderId],
+    queryFn: () => getMyOrderDetail(orderId as number),
+    enabled: orderId !== null,
+  });
+
 export const useCancelOrder = () => {
   const queryClient = useQueryClient();
 
@@ -38,7 +46,7 @@ export const useCancelOrder = () => {
     mutationFn: (orderId: number) => cancelOrder(orderId),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["my-orders"] });
+      void queryClient.invalidateQueries({ queryKey: ["order-detail"] });
     },
   });
 };
-

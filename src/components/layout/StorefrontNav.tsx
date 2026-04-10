@@ -30,6 +30,7 @@ export function StorefrontNav() {
 
     return getDisplayName(user.fullName);
   }, [user?.fullName]);
+  const canAccessOrders = isAuthenticated && Boolean(user?.roles.includes("CUSTOMER"));
 
   const handleLogout = () => {
     if (logoutMutation.isPending) {
@@ -67,6 +68,19 @@ export function StorefrontNav() {
         >
           Products
         </Link>
+        {canAccessOrders ? (
+          <Link
+            href="/orders"
+            className={cn(
+              "rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
+              isActivePath("/orders")
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            Orders
+          </Link>
+        ) : null}
       </div>
 
       <button

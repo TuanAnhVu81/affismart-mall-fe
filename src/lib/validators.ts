@@ -24,5 +24,14 @@ export const registerSchema = z
     message: "Passwords do not match.",
   });
 
+export const checkoutSchema = z.object({
+  shippingAddress: z
+    .string()
+    .trim()
+    .min(10, "Shipping address must be at least 10 characters long.")
+    .max(300, "Shipping address must be 300 characters or fewer."),
+});
+
 export type LoginFormValues = z.infer<typeof loginSchema>;
 export type RegisterFormValues = z.infer<typeof registerSchema>;
+export type CheckoutFormValues = z.infer<typeof checkoutSchema>;

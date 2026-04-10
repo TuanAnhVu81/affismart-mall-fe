@@ -19,7 +19,7 @@ export default function AuthLayout({ children }: PropsWithChildren) {
                 width={48}
                 height={48}
                 priority
-                className="h-full w-full object-contain"
+                className="h-auto w-auto object-contain"
               />
             </span>
             <span className="text-base font-semibold tracking-tight">
