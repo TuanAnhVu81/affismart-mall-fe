@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { usePathname } from "next/navigation";
 import { LogOut, ShoppingBag, UserCircle2 } from "lucide-react";
+import { AffiliateRegisterDialog } from "@/components/affiliate/AffiliateRegisterDialog";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { useLogout } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
@@ -22,6 +23,7 @@ export function StorefrontNav() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const totalItems = useCartStore((state) => state.totalItems);
   const openDrawer = useCartStore((state) => state.openDrawer);
+  const userRoles = user?.roles ?? [];
 
   const displayName = useMemo(() => {
     if (!user?.fullName) {
@@ -31,6 +33,13 @@ export function StorefrontNav() {
     return getDisplayName(user.fullName);
   }, [user?.fullName]);
   const canAccessOrders = isAuthenticated && Boolean(user?.roles.includes("CUSTOMER"));
+  const canApplyAffiliate =
+    isAuthenticated &&
+    Boolean(user) &&
+    userRoles.includes("CUSTOMER") &&
+    !userRoles.includes("AFFILIATE") &&
+    !userRoles.includes("ADMIN") &&
+    user?.affiliateStatus !== "PENDING";
 
   const handleLogout = () => {
     if (logoutMutation.isPending) {
@@ -100,6 +109,7 @@ export function StorefrontNav() {
 
       {isAuthenticated && user ? (
         <div className="flex items-center gap-2">
+          {canApplyAffiliate ? <AffiliateRegisterDialog /> : null}
           <span className="hidden items-center gap-1.5 rounded-full border border-border/80 bg-background px-3 py-1.5 text-sm text-foreground sm:inline-flex">
             <UserCircle2 className="size-4 text-primary" />
             Hi, {displayName}

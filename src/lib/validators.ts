@@ -32,6 +32,20 @@ export const checkoutSchema = z.object({
     .max(300, "Shipping address must be 300 characters or fewer."),
 });
 
+export const affiliateRegisterSchema = z.object({
+  promotionChannel: z
+    .string()
+    .trim()
+    .min(1, "Promotion channel is required.")
+    .max(100, "Promotion channel must be 100 characters or fewer."),
+  bankInfo: z
+    .string()
+    .trim()
+    .min(1, "Bank info is required.")
+    .max(1000, "Bank info must be 1000 characters or fewer."),
+});
+
 export type LoginFormValues = z.infer<typeof loginSchema>;
 export type RegisterFormValues = z.infer<typeof registerSchema>;
 export type CheckoutFormValues = z.infer<typeof checkoutSchema>;
+export type AffiliateRegisterFormValues = z.infer<typeof affiliateRegisterSchema>;
