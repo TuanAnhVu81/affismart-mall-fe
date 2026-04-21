@@ -3,7 +3,12 @@
 import Link from "next/link";
 import { useMemo } from "react";
 import { usePathname } from "next/navigation";
-import { LogOut, ShoppingBag, UserCircle2 } from "lucide-react";
+import {
+  LayoutDashboard,
+  LogOut,
+  ShoppingBag,
+  UserCircle2,
+} from "lucide-react";
 import { AffiliateRegisterDialog } from "@/components/affiliate/AffiliateRegisterDialog";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { useLogout } from "@/hooks/useAuth";
@@ -40,6 +45,8 @@ export function StorefrontNav() {
     !userRoles.includes("AFFILIATE") &&
     !userRoles.includes("ADMIN") &&
     user?.affiliateStatus !== "PENDING";
+  const canAccessAffiliatePortal =
+    isAuthenticated && Boolean(user) && userRoles.includes("AFFILIATE");
 
   const handleLogout = () => {
     if (logoutMutation.isPending) {
@@ -51,51 +58,72 @@ export function StorefrontNav() {
 
   const isActivePath = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
+  const isAffiliatePortalActive = pathname.startsWith("/affiliate");
+
+  const navLinkClassName = (active: boolean) =>
+    cn(
+      "relative rounded-full px-3 py-1.5 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+      active
+        ? "bg-background text-foreground shadow-sm"
+        : "text-muted-foreground hover:text-foreground",
+    );
+
+  const utilityButtonClassName = (active = false) =>
+    cn(
+      "relative inline-flex h-10 items-center gap-1.5 rounded-full border px-3.5 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+      active
+        ? "border-primary/30 bg-primary/8 text-primary shadow-sm"
+        : "border-border/80 bg-background text-muted-foreground hover:text-foreground",
+    );
 
   return (
-    <nav className="flex items-center gap-2 sm:gap-3">
+    <nav className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
       <div className="flex items-center rounded-full border border-border/80 bg-muted/30 p-1">
         <Link
           href="/"
-          className={cn(
-            "rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
-            isActivePath("/")
-              ? "bg-background text-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground",
-          )}
+          className={navLinkClassName(isActivePath("/"))}
         >
           Home
         </Link>
         <Link
           href="/products"
-          className={cn(
-            "rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
-            isActivePath("/products")
-              ? "bg-background text-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground",
-          )}
+          className={navLinkClassName(isActivePath("/products"))}
         >
           Products
         </Link>
         {canAccessOrders ? (
           <Link
             href="/orders"
-            className={cn(
-              "rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
-              isActivePath("/orders")
-                ? "bg-background text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground",
-            )}
+            className={navLinkClassName(isActivePath("/orders"))}
           >
             Orders
           </Link>
         ) : null}
       </div>
 
+      {canAccessAffiliatePortal ? (
+        <Link
+          href="/affiliate/dashboard"
+          className={utilityButtonClassName(isAffiliatePortalActive)}
+          aria-current={isAffiliatePortalActive ? "page" : undefined}
+        >
+          <LayoutDashboard
+            className={cn(
+              "size-4",
+              isAffiliatePortalActive ? "text-primary" : "text-muted-foreground",
+            )}
+          />
+          <span className="hidden sm:inline">
+            {isAffiliatePortalActive ? "In affiliate portal" : "Affiliate portal"}
+          </span>
+          <span className="sm:hidden">Portal</span>
+        </Link>
+      ) : null}
+
       <button
         type="button"
         onClick={openDrawer}
-        className="relative inline-flex h-9 items-center gap-1.5 rounded-full border border-border/80 bg-background px-3 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+        className={utilityButtonClassName()}
         aria-label="Open cart"
       >
         <ShoppingBag className="size-4" />
@@ -110,14 +138,17 @@ export function StorefrontNav() {
       {isAuthenticated && user ? (
         <div className="flex items-center gap-2">
           {canApplyAffiliate ? <AffiliateRegisterDialog /> : null}
-          <span className="hidden items-center gap-1.5 rounded-full border border-border/80 bg-background px-3 py-1.5 text-sm text-foreground sm:inline-flex">
+          <span className="hidden h-10 items-center gap-1.5 rounded-full border border-border/80 bg-background px-3.5 py-1.5 text-sm text-foreground sm:inline-flex">
             <UserCircle2 className="size-4 text-primary" />
             Hi, {displayName}
           </span>
           <button
             type="button"
             onClick={handleLogout}
-            className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-background px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground disabled:opacity-60"
+            className={cn(
+              utilityButtonClassName(),
+              "disabled:cursor-not-allowed disabled:opacity-60",
+            )}
             disabled={logoutMutation.isPending}
           >
             <LogOut className="size-4" />
@@ -128,13 +159,13 @@ export function StorefrontNav() {
         <div className="flex items-center gap-2">
           <Link
             href="/login"
-            className="rounded-full border border-border/80 px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            className={cn(utilityButtonClassName(), "h-10")}
           >
             Sign in
           </Link>
           <Link
             href="/register"
-            className="rounded-full bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-[var(--primary-hover)]"
+            className="inline-flex h-10 items-center rounded-full bg-primary px-3.5 py-1.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-[var(--primary-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             Register
           </Link>

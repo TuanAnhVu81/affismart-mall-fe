@@ -2,10 +2,10 @@
 
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
+import { startTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { login, logout, register, resolveUiRole } from "@/services/auth.service";
-import { useAuthStore } from "@/store/auth.store";
 import type {
   AuthResponse,
   LoginRequest,
@@ -44,19 +44,18 @@ const getPostLoginPath = (user: User) => {
 };
 
 export function useLogin() {
-  const setAuth = useAuthStore((state) => state.setAuth);
+  const router = useRouter();
 
   return useMutation<AuthResponse, unknown, LoginRequest>({
     mutationFn: login,
     onSuccess: (data) => {
-      setAuth(data.user, data.accessToken);
       toast.success("Signed in successfully.");
       const nextPath = getPostLoginPath(data.user);
 
-      if (typeof window !== "undefined") {
-        window.location.assign(nextPath);
-        return;
-      }
+      startTransition(() => {
+        router.replace(nextPath);
+        router.refresh();
+      });
     },
     onError: (error) => {
       toast.error(

@@ -15,6 +15,10 @@ interface ApiResponse<T> {
   data?: T;
 }
 
+interface ApiErrorPayload {
+  error_code?: string;
+}
+
 interface AuthUserPayload {
   id: number;
   email: string;
@@ -35,6 +39,13 @@ type AuthPayload = ApiResponse<AuthTokenPayload> | undefined;
 const UI_ROLE_COOKIE = "ui_role";
 const LOGIN_PATH = "/login";
 const baseURL = process.env.NEXT_PUBLIC_API_URL;
+const REFRESH_RETRY_DELAY_MS = 200;
+const MAX_REFRESH_CONFLICT_RETRIES = 2;
+const TERMINAL_REFRESH_ERROR_CODES = new Set([
+  "INVALID_REFRESH_TOKEN",
+  "REFRESH_TOKEN_REUSE_DETECTED",
+  "UNAUTHORIZED",
+]);
 
 if (!baseURL) {
   throw new Error("NEXT_PUBLIC_API_URL is not configured.");
@@ -47,6 +58,13 @@ const authClient = axios.create({
     "Content-Type": "application/json",
   },
 });
+
+let refreshSessionPromise: Promise<AuthResponse> | null = null;
+
+const sleep = (ms: number) =>
+  new Promise<void>((resolve) => {
+    setTimeout(resolve, ms);
+  });
 
 export const resolveUiRole = (user: User): UiRole => {
   if (user.roles.includes("ADMIN")) {
@@ -139,6 +157,11 @@ export const clearUiRoleCookie = () => {
   document.cookie = `${UI_ROLE_COOKIE}=; Max-Age=0; path=/; SameSite=Lax`;
 };
 
+export const clearClientAuthState = () => {
+  useAuthStore.getState().clearAuth();
+  clearUiRoleCookie();
+};
+
 const sanitizeRegisterPayload = (payload: RegisterRequest) => ({
   full_name: payload.fullName,
   email: payload.email,
@@ -187,18 +210,77 @@ export const logout = async () => {
       },
     );
   } finally {
-    useAuthStore.getState().clearAuth();
-    clearUiRoleCookie();
+    clearClientAuthState();
     redirectToLogin();
   }
 };
 
+const getApiErrorCode = (error: unknown) => {
+  if (!axios.isAxiosError<ApiErrorPayload>(error)) {
+    return null;
+  }
+
+  return error.response?.data?.error_code ?? null;
+};
+
+const isRefreshConflict = (error: unknown) => {
+  if (!axios.isAxiosError(error)) {
+    return false;
+  }
+
+  return error.response?.status === 409;
+};
+
+export const isTerminalRefreshError = (error: unknown) => {
+  if (!axios.isAxiosError<ApiErrorPayload>(error)) {
+    return false;
+  }
+
+  if (error.response?.status !== 401) {
+    return false;
+  }
+
+  const errorCode = getApiErrorCode(error);
+  return !errorCode || TERMINAL_REFRESH_ERROR_CODES.has(errorCode);
+};
+
+const requestRefreshSession = async (attempt = 0): Promise<AuthResponse> => {
+  try {
+    const { data } = await authClient.post<AuthPayload>("/auth/refresh");
+    const authResponse = extractAuthResponse(data);
+
+    useAuthStore.getState().setAuth(authResponse.user, authResponse.accessToken);
+    setUiRoleCookie(resolveUiRole(authResponse.user));
+
+    return authResponse;
+  } catch (error) {
+    if (isRefreshConflict(error) && attempt < MAX_REFRESH_CONFLICT_RETRIES) {
+      await sleep(REFRESH_RETRY_DELAY_MS);
+      return requestRefreshSession(attempt + 1);
+    }
+
+    throw error;
+  }
+};
+
+export const refreshSession = async (): Promise<AuthResponse> => {
+  if (!refreshSessionPromise) {
+    refreshSessionPromise = requestRefreshSession()
+      .catch((error) => {
+        if (isTerminalRefreshError(error)) {
+          clearClientAuthState();
+        }
+
+        throw error;
+      })
+      .finally(() => {
+        refreshSessionPromise = null;
+      });
+  }
+
+  return refreshSessionPromise;
+};
+
 export const refreshToken = async () => {
-  const { data } = await authClient.post<AuthPayload>("/auth/refresh");
-  const authResponse = extractAuthResponse(data);
-
-  useAuthStore.getState().setAuth(authResponse.user, authResponse.accessToken);
-  setUiRoleCookie(resolveUiRole(authResponse.user));
-
-  return authResponse;
+  return refreshSession();
 };

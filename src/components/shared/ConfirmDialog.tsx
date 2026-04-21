@@ -38,16 +38,22 @@ export function ConfirmDialog({
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
-        <DialogFooter className="-mx-4 -mb-4 mt-2 rounded-b-xl border-t bg-muted/40 p-4">
+        <DialogFooter className="mt-2 rounded-b-xl">
           <Button
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isLoading}
+            className="h-10 min-w-28 rounded-full"
           >
             {cancelText}
           </Button>
-          <Button type="button" onClick={onConfirm} disabled={isLoading}>
+          <Button
+            type="button"
+            onClick={onConfirm}
+            disabled={isLoading}
+            className="h-10 min-w-32 rounded-full shadow-sm"
+          >
             {isLoading ? "Processing..." : confirmText}
           </Button>
         </DialogFooter>
@@ -55,4 +61,3 @@ export function ConfirmDialog({
     </Dialog>
   );
 }
-

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { ProductFilters } from "@/components/product/ProductFilters";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { getActiveCategories } from "@/services/category.service";
@@ -94,7 +95,13 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[280px_1fr] lg:items-start">
-        <ProductFilters categories={categories} />
+        <Suspense
+          fallback={
+            <div className="min-h-[26rem] rounded-3xl border border-border/70 bg-card/70 shadow-soft" />
+          }
+        >
+          <ProductFilters categories={categories} />
+        </Suspense>
         <section className="space-y-4">
           <div className="flex items-center justify-between rounded-2xl border border-border/70 bg-card/60 px-4 py-2.5">
             <p className="text-sm text-muted-foreground">

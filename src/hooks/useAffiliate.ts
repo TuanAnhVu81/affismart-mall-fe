@@ -29,6 +29,11 @@ const AFFILIATE_LINKS_QUERY_KEY = ["affiliate-links"] as const;
 const AFFILIATE_COMMISSIONS_QUERY_KEY = ["affiliate-commissions"] as const;
 const AFFILIATE_PAYOUTS_QUERY_KEY = ["affiliate-payouts"] as const;
 
+const useAffiliateQueryEnabled = () => {
+  const accessToken = useAuthStore((state) => state.accessToken);
+  return Boolean(accessToken);
+};
+
 export const useRegisterAffiliate = () => {
   const queryClient = useQueryClient();
 
@@ -64,21 +69,25 @@ export const useRegisterAffiliate = () => {
 };
 
 export const useMyAffiliateAccount = () =>
+  // Wait until an in-memory access token exists to avoid 401 -> refresh races.
   useQuery({
     queryKey: AFFILIATE_ACCOUNT_QUERY_KEY,
     queryFn: getMyAffiliateAccount,
+    enabled: useAffiliateQueryEnabled(),
   });
 
 export const useAffiliateDashboard = () =>
   useQuery({
     queryKey: AFFILIATE_DASHBOARD_QUERY_KEY,
     queryFn: getMyDashboard,
+    enabled: useAffiliateQueryEnabled(),
   });
 
 export const useAffiliateLinks = (params: AffiliateLinksQueryParams = {}) =>
   useQuery({
     queryKey: [...AFFILIATE_LINKS_QUERY_KEY, params],
     queryFn: () => getMyLinks(params),
+    enabled: useAffiliateQueryEnabled(),
   });
 
 export const useCreateAffiliateLink = () => {
@@ -113,12 +122,14 @@ export const useAffiliateCommissions = (params: CommissionQueryParams = {}) =>
   useQuery({
     queryKey: [...AFFILIATE_COMMISSIONS_QUERY_KEY, params],
     queryFn: () => getMyCommissions(params),
+    enabled: useAffiliateQueryEnabled(),
   });
 
 export const useAffiliatePayouts = (params: PayoutQueryParams = {}) =>
   useQuery({
     queryKey: [...AFFILIATE_PAYOUTS_QUERY_KEY, params],
     queryFn: () => getMyPayouts(params),
+    enabled: useAffiliateQueryEnabled(),
   });
 
 export const useCreatePayoutRequest = () => {

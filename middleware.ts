@@ -40,6 +40,10 @@ export function middleware(request: NextRequest) {
       return redirect(request, AFFILIATE_PENDING_PATH);
     }
 
+    if (uiRole === "AFFILIATE" && isAffiliatePendingRoute) {
+      return redirect(request, "/affiliate/dashboard");
+    }
+
     if (uiRole !== "AFFILIATE" && uiRole !== "AFFILIATE_PENDING") {
       return redirect(request, HOME_PATH);
     }
