@@ -125,6 +125,35 @@ export const adminOrderStatusUpdateSchema = z.object({
   }),
 });
 
+export const adminResetPasswordSchema = z.object({
+  newPassword: z
+    .string()
+    .trim()
+    .min(8, "New password must be at least 8 characters long.")
+    .max(72, "New password must be 72 characters or fewer."),
+});
+
+export const adminAffiliateCommissionRateSchema = z.object({
+  commissionRate: requiredNumber("Commission rate").pipe(
+    z
+      .number()
+      .min(0, "Commission rate must be at least 0%.")
+      .max(100, "Commission rate must be at most 100%."),
+  ),
+});
+
+export const adminPayoutDecisionSchema = z.object({
+  status: z.enum(["APPROVED", "TRANSFERRED", "REJECTED"], {
+    error: () => "Please choose a valid payout action.",
+  }),
+  adminNote: z
+    .string()
+    .trim()
+    .max(1000, "Admin note must be 1000 characters or fewer.")
+    .optional()
+    .or(z.literal("")),
+});
+
 export type LoginFormValues = z.infer<typeof loginSchema>;
 export type RegisterFormValues = z.infer<typeof registerSchema>;
 export type CheckoutFormValues = z.infer<typeof checkoutSchema>;
@@ -132,3 +161,6 @@ export type AffiliateRegisterFormValues = z.infer<typeof affiliateRegisterSchema
 export type AdminCategoryFormValues = z.infer<typeof adminCategorySchema>;
 export type AdminProductFormValues = z.infer<typeof adminProductSchema>;
 export type AdminOrderStatusUpdateFormValues = z.infer<typeof adminOrderStatusUpdateSchema>;
+export type AdminResetPasswordFormValues = z.infer<typeof adminResetPasswordSchema>;
+export type AdminAffiliateCommissionRateFormValues = z.infer<typeof adminAffiliateCommissionRateSchema>;
+export type AdminPayoutDecisionFormValues = z.infer<typeof adminPayoutDecisionSchema>;

@@ -5,6 +5,7 @@ import {
   createAdminCategory,
   createAdminProduct,
   getAdminAffiliateAccounts,
+  getAdminBlockedIps,
   getAdminCategories,
   getAdminCategoryDetail,
   getAdminLowStockProducts,
@@ -25,6 +26,7 @@ import {
   updateAdminProduct,
   updateAdminProductStatus,
   updateAdminUserStatus,
+  unblockAdminBlockedIp,
   uploadAdminProductImage,
 } from "@/services/admin.service";
 import { useAuthStore } from "@/store/auth.store";
@@ -56,6 +58,7 @@ const ADMIN_ORDERS_QUERY_KEY = ["admin-orders"] as const;
 const ADMIN_ORDER_DETAIL_QUERY_KEY = ["admin-order-detail"] as const;
 const ADMIN_AFFILIATE_ACCOUNTS_QUERY_KEY = ["admin-affiliate-accounts"] as const;
 const ADMIN_PAYOUT_REQUESTS_QUERY_KEY = ["admin-payout-requests"] as const;
+const ADMIN_BLOCKED_IPS_QUERY_KEY = ["admin-blocked-ips"] as const;
 
 const useAdminQueryEnabled = () => {
   const accessToken = useAuthStore((state) => state.accessToken);
@@ -351,6 +354,24 @@ export const useUpdateAdminPayoutRequestStatus = () => {
     }) => updateAdminPayoutRequestStatus(payoutRequestId, payload),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ADMIN_PAYOUT_REQUESTS_QUERY_KEY });
+    },
+  });
+};
+
+export const useAdminBlockedIps = () =>
+  useQuery({
+    queryKey: ADMIN_BLOCKED_IPS_QUERY_KEY,
+    queryFn: getAdminBlockedIps,
+    enabled: useAdminQueryEnabled(),
+  });
+
+export const useUnblockAdminBlockedIp = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (ipAddress: string) => unblockAdminBlockedIp(ipAddress),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ADMIN_BLOCKED_IPS_QUERY_KEY });
     },
   });
 };

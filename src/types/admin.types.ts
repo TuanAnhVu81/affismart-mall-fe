@@ -63,6 +63,13 @@ export interface AdminPayoutRequest {
   updatedAt?: string;
 }
 
+export interface BlockedIpEntry {
+  ipAddress: string;
+  reason: string;
+  blockedAt?: string | null;
+  expiresAt?: string | null;
+}
+
 export type AdminProductsResult = PaginatedResult<Product>;
 export type AdminUsersResult = PaginatedResult<AdminUserSummary>;
 export type AdminOrdersResult = PaginatedResult<OrderSummary>;
@@ -176,3 +183,6 @@ export interface AdminLowStockProductsResult {
 }
 
 export type AdminOrderDetail = OrderDetail;
+export interface AdminBlockedIpsResult {
+  items: BlockedIpEntry[];
+}

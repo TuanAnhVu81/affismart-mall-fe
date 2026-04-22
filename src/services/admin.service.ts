@@ -8,6 +8,7 @@ import type { UserRole } from "@/types/auth.types";
 import type {
   AdminAffiliateAccount,
   AdminAffiliateAccountsQueryParams,
+  AdminBlockedIpsResult,
   AdminLowStockProductsResult,
   AdminOrderDetail,
   AdminOrdersQueryParams,
@@ -27,6 +28,7 @@ import type {
   UpdateUserStatusPayload,
   UpsertCategoryPayload,
   UpsertProductPayload,
+  BlockedIpEntry,
   UserStatus,
 } from "@/types/admin.types";
 import type { OrderDetail, OrderItemDetail, OrderSummary } from "@/types/order.types";
@@ -171,6 +173,13 @@ interface PayoutRequestUpdatePayload {
   resolved_at?: string | null;
   created_at?: string;
   updated_at?: string;
+}
+
+interface BlockedIpPayload {
+  ip_address: string;
+  reason: string;
+  blocked_at?: string | null;
+  expires_at?: string | null;
 }
 
 const unwrapData = <T>(payload: ApiResponse<T> | T, errorMessage: string): T => {
@@ -365,6 +374,13 @@ const toAdminPayoutRequestFromUpdate = (
   resolvedAt: payload.resolved_at ?? null,
   createdAt: payload.created_at,
   updatedAt: payload.updated_at,
+});
+
+const toBlockedIpEntry = (payload: BlockedIpPayload): BlockedIpEntry => ({
+  ipAddress: payload.ip_address,
+  reason: payload.reason,
+  blockedAt: payload.blocked_at ?? null,
+  expiresAt: payload.expires_at ?? null,
 });
 
 const toPaginatedResult = <T, U>(
@@ -737,4 +753,17 @@ export const updateAdminPayoutRequestStatus = async (
   const responsePayload = unwrapData(data, "Invalid payout status response payload.");
 
   return toAdminPayoutRequestFromUpdate(responsePayload);
+};
+
+export const getAdminBlockedIps = async (): Promise<AdminBlockedIpsResult> => {
+  const { data } = await api.get<ApiResponse<BlockedIpPayload[]>>("/affiliate/blocked-ips");
+  const responsePayload = unwrapData(data, "Invalid blocked IP response payload.");
+
+  return {
+    items: responsePayload.map(toBlockedIpEntry),
+  };
+};
+
+export const unblockAdminBlockedIp = async (ipAddress: string) => {
+  await api.delete<ApiResponse<void>>(`/affiliate/blocked-ips/${encodeURIComponent(ipAddress)}`);
 };

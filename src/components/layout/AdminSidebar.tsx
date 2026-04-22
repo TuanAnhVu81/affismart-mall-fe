@@ -49,22 +49,22 @@ const adminNavItems: AdminNavItem[] = [
     description: "Review and update fulfillment flow",
   },
   {
+    href: "/admin/users",
     label: "Users",
     icon: Users,
     description: "Account status and password resets",
-    soon: true,
   },
   {
+    href: "/admin/affiliates",
     label: "Affiliates",
     icon: WalletCards,
     description: "Approvals, payouts, and commission rates",
-    soon: true,
   },
   {
+    href: "/admin/blocked-ips",
     label: "Blocked IPs",
     icon: Ban,
     description: "Fraud control and recovery actions",
-    soon: true,
   },
 ];
 
