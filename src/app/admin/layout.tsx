@@ -9,7 +9,7 @@ export default function AdminLayout({ children }: PropsWithChildren) {
     <div className="flex min-h-screen flex-col bg-background">
       <header className="sticky top-0 z-20 border-b border-border/80 bg-[rgba(248,250,252,0.95)] backdrop-blur-md">
         <div className="mx-auto flex h-[4.75rem] w-full items-center justify-between px-4 sm:px-6">
-          <Link href="/admin/products" className="inline-flex items-center gap-3">
+          <Link href="/admin/dashboard" className="inline-flex items-center gap-3">
             <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-border bg-primary/8 text-primary shadow-soft">
               <ShieldCheck className="size-5" />
             </span>

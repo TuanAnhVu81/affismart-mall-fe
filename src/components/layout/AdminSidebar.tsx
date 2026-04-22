@@ -25,10 +25,10 @@ type AdminNavItem = {
 
 const adminNavItems: AdminNavItem[] = [
   {
+    href: "/admin/dashboard",
     label: "Dashboard",
     icon: LayoutDashboard,
     description: "Analytics and low-stock watchlist",
-    soon: true,
   },
   {
     href: "/admin/products",
@@ -43,10 +43,10 @@ const adminNavItems: AdminNavItem[] = [
     description: "Organize the storefront taxonomy",
   },
   {
+    href: "/admin/orders",
     label: "Orders",
     icon: FolderKanban,
     description: "Review and update fulfillment flow",
-    soon: true,
   },
   {
     label: "Users",

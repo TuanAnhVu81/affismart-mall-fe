@@ -119,9 +119,16 @@ export const adminProductSchema = z.object({
     .or(z.literal("")),
 });
 
+export const adminOrderStatusUpdateSchema = z.object({
+  status: z.enum(["CONFIRMED", "SHIPPED", "DONE"], {
+    error: () => "Please choose a valid next order status.",
+  }),
+});
+
 export type LoginFormValues = z.infer<typeof loginSchema>;
 export type RegisterFormValues = z.infer<typeof registerSchema>;
 export type CheckoutFormValues = z.infer<typeof checkoutSchema>;
 export type AffiliateRegisterFormValues = z.infer<typeof affiliateRegisterSchema>;
 export type AdminCategoryFormValues = z.infer<typeof adminCategorySchema>;
 export type AdminProductFormValues = z.infer<typeof adminProductSchema>;
+export type AdminOrderStatusUpdateFormValues = z.infer<typeof adminOrderStatusUpdateSchema>;

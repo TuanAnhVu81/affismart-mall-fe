@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   LogOut,
+  ShieldCheck,
   ShoppingBag,
   UserCircle2,
 } from "lucide-react";
@@ -48,6 +49,8 @@ export function StorefrontNav() {
     user?.affiliateStatus !== "PENDING";
   const canAccessAffiliatePortal =
     isAuthenticated && Boolean(user) && userRoles.includes("AFFILIATE");
+  const canAccessAdminPanel =
+    isAuthenticated && Boolean(user) && userRoles.includes("ADMIN");
 
   const handleLogout = () => {
     if (logoutMutation.isPending) {
@@ -118,6 +121,25 @@ export function StorefrontNav() {
             {isAffiliatePortalActive ? "In affiliate portal" : "Affiliate portal"}
           </span>
           <span className="sm:hidden">Portal</span>
+        </Link>
+      ) : null}
+
+      {canAccessAdminPanel ? (
+        <Link
+          href="/admin/dashboard"
+          className={utilityButtonClassName(isAdminRoute)}
+          aria-current={isAdminRoute ? "page" : undefined}
+        >
+          <ShieldCheck
+            className={cn(
+              "size-4",
+              isAdminRoute ? "text-primary" : "text-muted-foreground",
+            )}
+          />
+          <span className="hidden sm:inline">
+            {isAdminRoute ? "In admin panel" : "Admin panel"}
+          </span>
+          <span className="sm:hidden">Admin</span>
         </Link>
       ) : null}
 
