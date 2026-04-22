@@ -29,6 +29,7 @@ export function StorefrontNav() {
   const totalItems = useCartStore((state) => state.totalItems);
   const openDrawer = useCartStore((state) => state.openDrawer);
   const userRoles = user?.roles ?? [];
+  const isAdminRoute = pathname.startsWith("/admin");
 
   const displayName = useMemo(() => {
     if (!user?.fullName) {
@@ -120,20 +121,22 @@ export function StorefrontNav() {
         </Link>
       ) : null}
 
-      <button
-        type="button"
-        onClick={openDrawer}
-        className={utilityButtonClassName()}
-        aria-label="Open cart"
-      >
-        <ShoppingBag className="size-4" />
-        <span className="hidden sm:inline">Cart</span>
-        {totalItems > 0 ? (
-          <span className="absolute -right-1.5 -top-1.5 inline-flex min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-semibold leading-5 text-primary-foreground">
-            {totalItems > 99 ? "99+" : totalItems}
-          </span>
-        ) : null}
-      </button>
+      {!isAdminRoute ? (
+        <button
+          type="button"
+          onClick={openDrawer}
+          className={utilityButtonClassName()}
+          aria-label="Open cart"
+        >
+          <ShoppingBag className="size-4" />
+          <span className="hidden sm:inline">Cart</span>
+          {totalItems > 0 ? (
+            <span className="absolute -right-1.5 -top-1.5 inline-flex min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-semibold leading-5 text-primary-foreground">
+              {totalItems > 99 ? "99+" : totalItems}
+            </span>
+          ) : null}
+        </button>
+      ) : null}
 
       {isAuthenticated && user ? (
         <div className="flex items-center gap-2">
