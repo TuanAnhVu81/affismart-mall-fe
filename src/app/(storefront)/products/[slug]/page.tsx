@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, PackageCheck } from "lucide-react";
+import { ProductViewTracker } from "@/components/ai/ProductViewTracker";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ProductAddToCart } from "@/components/product/ProductAddToCart";
@@ -65,6 +66,8 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
 
   return (
     <div className="space-y-8 py-8 sm:py-10">
+      <ProductViewTracker productId={product.id} />
+
       <Button
         render={<Link href="/products" />}
         variant="ghost"
@@ -155,4 +158,3 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
     </div>
   );
 }
-

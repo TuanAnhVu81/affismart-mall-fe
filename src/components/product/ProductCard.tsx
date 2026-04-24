@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
+import { trackEventInBackground } from "@/services/ai.service";
 import { useCartStore } from "@/store/cart.store";
 import type { Product } from "@/types/product.types";
 
@@ -39,6 +40,7 @@ export function ProductCard({ product }: ProductCardProps) {
       quantity: 1,
     });
     openDrawer();
+    trackEventInBackground("ADD_TO_CART", product.id);
     toast.success(`${product.name} added to cart.`);
   };
 

@@ -12,6 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { trackEventInBackground } from "@/services/ai.service";
 import { useCartStore } from "@/store/cart.store";
 
 interface PaymentSuccessContentProps {
@@ -21,11 +22,32 @@ interface PaymentSuccessContentProps {
 export function PaymentSuccessContent({ orderId }: PaymentSuccessContentProps) {
   const clearCart = useCartStore((state) => state.clearCart);
   const closeDrawer = useCartStore((state) => state.closeDrawer);
+  const items = useCartStore((state) => state.items);
 
   useEffect(() => {
+    const purchaseTrackingKey =
+      orderId ||
+      items
+        .map((item) => item.productId)
+        .sort((left, right) => left - right)
+        .join("-");
+
+    if (typeof window !== "undefined" && purchaseTrackingKey) {
+      const storageKey = `affismart-ai-purchase-${purchaseTrackingKey}`;
+      const hasTrackedPurchase = window.sessionStorage.getItem(storageKey);
+
+      if (!hasTrackedPurchase) {
+        const uniqueProductIds = Array.from(new Set(items.map((item) => item.productId)));
+        uniqueProductIds.forEach((productId) => {
+          trackEventInBackground("PURCHASE", productId);
+        });
+        window.sessionStorage.setItem(storageKey, "1");
+      }
+    }
+
     clearCart();
     closeDrawer();
-  }, [clearCart, closeDrawer]);
+  }, [clearCart, closeDrawer, items, orderId]);
 
   return (
     <div className="relative overflow-hidden rounded-3xl border border-border/80 bg-card/90 shadow-soft">
@@ -85,4 +107,3 @@ export function PaymentSuccessContent({ orderId }: PaymentSuccessContentProps) {
     </div>
   );
 }
-

@@ -3,6 +3,7 @@
 import { ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { trackEventInBackground } from "@/services/ai.service";
 import { useCartStore } from "@/store/cart.store";
 import type { Product } from "@/types/product.types";
 
@@ -33,6 +34,7 @@ export function ProductAddToCart({ product }: ProductAddToCartProps) {
     });
     
     openDrawer();
+    trackEventInBackground("ADD_TO_CART", product.id);
     toast.success(`${product.name} added to cart.`);
   };
 
