@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, PackageCheck } from "lucide-react";
+import { RecommendationSection } from "@/components/ai/RecommendationSection";
 import { ProductViewTracker } from "@/components/ai/ProductViewTracker";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -155,6 +156,14 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
           <ProductAddToCart product={product} />
         </div>
       </div>
+
+      <RecommendationSection
+        variant="related"
+        productId={product.id}
+        title="Related picks"
+        description="More products that fit naturally with this item."
+        limit={4}
+      />
     </div>
   );
 }

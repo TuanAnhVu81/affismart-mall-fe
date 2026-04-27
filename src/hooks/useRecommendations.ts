@@ -14,20 +14,23 @@ import type {
 
 export const useHomepageRecommendations = (
   params: HomepageRecommendationsParams = {},
+  options: { enabled?: boolean } = {},
 ) =>
   useQuery({
     queryKey: ["ai", "recommendations", "homepage", params],
     queryFn: () => getHomepageRecommendations(params),
+    enabled: options.enabled ?? true,
   });
 
 export const useRelatedProductRecommendations = (
   productId: number | null | undefined,
   params: RelatedRecommendationsParams = {},
+  options: { enabled?: boolean } = {},
 ) =>
   useQuery({
     queryKey: ["ai", "recommendations", "related", productId, params],
     queryFn: () => getRelatedProducts(productId as number, params),
-    enabled: Boolean(productId),
+    enabled: Boolean(productId) && (options.enabled ?? true),
   });
 
 export const useTrackRecommendationEvent = () =>

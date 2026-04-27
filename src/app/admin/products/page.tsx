@@ -321,7 +321,10 @@ export default function AdminProductsPage() {
               />
             </div>
 
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <Select
+              value={categoryFilter}
+              onValueChange={(value) => setCategoryFilter(value ?? "all")}
+            >
               <SelectTrigger className="h-11 min-w-44 rounded-full bg-background">
                 <span className="truncate text-left">
                   {categoryFilter === "all"

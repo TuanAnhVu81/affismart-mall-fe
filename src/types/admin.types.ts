@@ -182,6 +182,33 @@ export interface AdminLowStockProductsResult {
   items: Product[];
 }
 
+export interface AdminAnalyticsDashboard {
+  grossMerchandiseValue: number;
+  totalOrders: number;
+  completedOrders: number;
+  totalUsers: number;
+  activeAffiliates: number;
+}
+
+export interface AdminTopProduct {
+  productId: number;
+  productName: string;
+  sku?: string | null;
+  imageUrl?: string | null;
+  quantitySold: number;
+  revenue: number;
+}
+
+export interface AdminTopAffiliate {
+  affiliateAccountId: number;
+  userId: number;
+  fullName: string;
+  refCode: string;
+  conversionCount: number;
+  totalCommission: number;
+  attributedRevenue: number;
+}
+
 export type AdminOrderDetail = OrderDetail;
 export interface AdminBlockedIpsResult {
   items: BlockedIpEntry[];

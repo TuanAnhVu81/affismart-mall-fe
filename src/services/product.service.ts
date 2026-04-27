@@ -167,3 +167,44 @@ export const getProductBySlug = async (slug: string) => {
     return matched;
   }
 };
+
+export const getProductsByIds = async (productIds: number[]) => {
+  const uniqueProductIds = Array.from(new Set(productIds)).filter((id) => Number.isFinite(id));
+
+  if (!uniqueProductIds.length) {
+    return [];
+  }
+
+  const productById = new Map<number, Product>();
+  const pageSize = Math.max(100, uniqueProductIds.length);
+  const firstPage = await getProducts({
+    page: 0,
+    size: pageSize,
+    sortBy: "createdAt,desc",
+  });
+
+  firstPage.content.forEach((product) => {
+    if (uniqueProductIds.includes(product.id)) {
+      productById.set(product.id, product);
+    }
+  });
+
+  const pagesToScan = Math.min(firstPage.totalPages, 5);
+  for (let page = 1; page < pagesToScan && productById.size < uniqueProductIds.length; page += 1) {
+    const pagedResult = await getProducts({
+      page,
+      size: pageSize,
+      sortBy: "createdAt,desc",
+    });
+
+    pagedResult.content.forEach((product) => {
+      if (uniqueProductIds.includes(product.id)) {
+        productById.set(product.id, product);
+      }
+    });
+  }
+
+  return uniqueProductIds
+    .map((productId) => productById.get(productId))
+    .filter((product): product is Product => Boolean(product));
+};

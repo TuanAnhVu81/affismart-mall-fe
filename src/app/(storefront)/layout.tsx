@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Suspense, type PropsWithChildren } from "react";
 import { AffiliateTracker } from "@/components/affiliate/AffiliateTracker";
+import { ChatbotWidget } from "@/components/ai/ChatbotWidget";
 import { StorefrontNav } from "@/components/layout/StorefrontNav";
 import { Button } from "@/components/ui/button";
 
@@ -34,6 +35,7 @@ export default function StorefrontLayout({ children }: PropsWithChildren) {
       </header>
 
       <main className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6">{children}</main>
+      <ChatbotWidget />
 
       <footer className="border-t border-[#e7eaf3] bg-gradient-to-b from-[#f8faff] via-[#f5f7ff] to-[#eef2ff] pt-16 pb-8">
         <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">

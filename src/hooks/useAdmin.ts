@@ -5,6 +5,7 @@ import {
   createAdminCategory,
   createAdminProduct,
   getAdminAffiliateAccounts,
+  getAdminAnalyticsDashboard,
   getAdminBlockedIps,
   getAdminCategories,
   getAdminCategoryDetail,
@@ -14,6 +15,8 @@ import {
   getAdminPayoutRequests,
   getAdminProductDetail,
   getAdminProducts,
+  getAdminTopAffiliates,
+  getAdminTopProducts,
   getAdminUserDetail,
   getAdminUsers,
   resetAdminUserPassword,
@@ -59,6 +62,9 @@ const ADMIN_ORDER_DETAIL_QUERY_KEY = ["admin-order-detail"] as const;
 const ADMIN_AFFILIATE_ACCOUNTS_QUERY_KEY = ["admin-affiliate-accounts"] as const;
 const ADMIN_PAYOUT_REQUESTS_QUERY_KEY = ["admin-payout-requests"] as const;
 const ADMIN_BLOCKED_IPS_QUERY_KEY = ["admin-blocked-ips"] as const;
+const ADMIN_ANALYTICS_DASHBOARD_QUERY_KEY = ["admin-analytics-dashboard"] as const;
+const ADMIN_TOP_PRODUCTS_QUERY_KEY = ["admin-top-products"] as const;
+const ADMIN_TOP_AFFILIATES_QUERY_KEY = ["admin-top-affiliates"] as const;
 
 const useAdminQueryEnabled = () => {
   const accessToken = useAuthStore((state) => state.accessToken);
@@ -207,6 +213,27 @@ export const useAdminLowStockProducts = () =>
   useQuery({
     queryKey: ADMIN_LOW_STOCK_PRODUCTS_QUERY_KEY,
     queryFn: getAdminLowStockProducts,
+    enabled: useAdminQueryEnabled(),
+  });
+
+export const useAdminAnalyticsDashboard = () =>
+  useQuery({
+    queryKey: ADMIN_ANALYTICS_DASHBOARD_QUERY_KEY,
+    queryFn: getAdminAnalyticsDashboard,
+    enabled: useAdminQueryEnabled(),
+  });
+
+export const useAdminTopProducts = (limit = 10) =>
+  useQuery({
+    queryKey: [...ADMIN_TOP_PRODUCTS_QUERY_KEY, limit],
+    queryFn: () => getAdminTopProducts(limit),
+    enabled: useAdminQueryEnabled(),
+  });
+
+export const useAdminTopAffiliates = (limit = 10) =>
+  useQuery({
+    queryKey: [...ADMIN_TOP_AFFILIATES_QUERY_KEY, limit],
+    queryFn: () => getAdminTopAffiliates(limit),
     enabled: useAdminQueryEnabled(),
   });
 

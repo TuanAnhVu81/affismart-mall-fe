@@ -17,6 +17,7 @@ import type { Category } from "@/types/product.types";
 import type { UpsertProductPayload } from "@/types/admin.types";
 import {
   adminProductSchema,
+  type AdminProductFormInputValues,
   type AdminProductFormValues,
 } from "@/lib/validators";
 import { cn, formatCurrency, formatDate } from "@/lib/utils";
@@ -68,7 +69,7 @@ export function ProductForm({
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
 
-  const form = useForm<AdminProductFormValues>({
+  const form = useForm<AdminProductFormInputValues, unknown, AdminProductFormValues>({
     resolver: zodResolver(adminProductSchema),
     defaultValues: {
       categoryId: initialValues?.categoryId ?? 0,

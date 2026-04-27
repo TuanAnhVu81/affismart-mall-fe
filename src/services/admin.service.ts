@@ -8,6 +8,7 @@ import type { UserRole } from "@/types/auth.types";
 import type {
   AdminAffiliateAccount,
   AdminAffiliateAccountsQueryParams,
+  AdminAnalyticsDashboard,
   AdminBlockedIpsResult,
   AdminLowStockProductsResult,
   AdminOrderDetail,
@@ -15,6 +16,8 @@ import type {
   AdminPayoutRequest,
   AdminPayoutRequestsQueryParams,
   AdminProductsQueryParams,
+  AdminTopAffiliate,
+  AdminTopProduct,
   AdminUserProfile,
   AdminUsersQueryParams,
   ProductImageUploadResult,
@@ -180,6 +183,33 @@ interface BlockedIpPayload {
   reason: string;
   blocked_at?: string | null;
   expires_at?: string | null;
+}
+
+interface AnalyticsDashboardPayload {
+  gross_merchandise_value: number | string;
+  total_orders: number;
+  completed_orders: number;
+  total_users: number;
+  active_affiliates: number;
+}
+
+interface TopProductPayload {
+  product_id: number;
+  product_name: string;
+  sku?: string | null;
+  image_url?: string | null;
+  quantity_sold: number;
+  revenue: number | string;
+}
+
+interface TopAffiliatePayload {
+  affiliate_account_id: number;
+  user_id: number;
+  full_name: string;
+  ref_code: string;
+  conversion_count: number;
+  total_commission: number | string;
+  attributed_revenue: number | string;
 }
 
 const unwrapData = <T>(payload: ApiResponse<T> | T, errorMessage: string): T => {
@@ -383,6 +413,35 @@ const toBlockedIpEntry = (payload: BlockedIpPayload): BlockedIpEntry => ({
   expiresAt: payload.expires_at ?? null,
 });
 
+const toAnalyticsDashboard = (
+  payload: AnalyticsDashboardPayload,
+): AdminAnalyticsDashboard => ({
+  grossMerchandiseValue: toNumber(payload.gross_merchandise_value),
+  totalOrders: payload.total_orders,
+  completedOrders: payload.completed_orders,
+  totalUsers: payload.total_users,
+  activeAffiliates: payload.active_affiliates,
+});
+
+const toTopProduct = (payload: TopProductPayload): AdminTopProduct => ({
+  productId: payload.product_id,
+  productName: payload.product_name,
+  sku: payload.sku ?? null,
+  imageUrl: payload.image_url ?? null,
+  quantitySold: payload.quantity_sold,
+  revenue: toNumber(payload.revenue),
+});
+
+const toTopAffiliate = (payload: TopAffiliatePayload): AdminTopAffiliate => ({
+  affiliateAccountId: payload.affiliate_account_id,
+  userId: payload.user_id,
+  fullName: payload.full_name,
+  refCode: payload.ref_code,
+  conversionCount: payload.conversion_count,
+  totalCommission: toNumber(payload.total_commission),
+  attributedRevenue: toNumber(payload.attributed_revenue),
+});
+
 const toPaginatedResult = <T, U>(
   payload: PagePayload<T>,
   mapper: (item: T) => U,
@@ -583,6 +642,39 @@ export const getAdminLowStockProducts = async (): Promise<AdminLowStockProductsR
   return {
     items: responsePayload.map(toProduct),
   };
+};
+
+export const getAdminAnalyticsDashboard = async () => {
+  const { data } = await api.get<ApiResponse<AnalyticsDashboardPayload>>(
+    "/analytics/dashboard",
+  );
+  const responsePayload = unwrapData(data, "Invalid analytics dashboard response payload.");
+
+  return toAnalyticsDashboard(responsePayload);
+};
+
+export const getAdminTopProducts = async (limit = 10) => {
+  const { data } = await api.get<ApiResponse<TopProductPayload[]>>(
+    "/analytics/top-products",
+    {
+      params: { limit },
+    },
+  );
+  const responsePayload = unwrapData(data, "Invalid top products response payload.");
+
+  return responsePayload.map(toTopProduct);
+};
+
+export const getAdminTopAffiliates = async (limit = 10) => {
+  const { data } = await api.get<ApiResponse<TopAffiliatePayload[]>>(
+    "/analytics/top-affiliates",
+    {
+      params: { limit },
+    },
+  );
+  const responsePayload = unwrapData(data, "Invalid top affiliates response payload.");
+
+  return responsePayload.map(toTopAffiliate);
 };
 
 export const getAdminUsers = async (params: AdminUsersQueryParams = {}) => {

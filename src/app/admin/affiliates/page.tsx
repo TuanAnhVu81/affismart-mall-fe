@@ -39,6 +39,7 @@ import {
 import {
   adminAffiliateCommissionRateSchema,
   adminPayoutDecisionSchema,
+  type AdminAffiliateCommissionRateFormInputValues,
   type AdminAffiliateCommissionRateFormValues,
   type AdminPayoutDecisionFormValues,
 } from "@/lib/validators";
@@ -55,6 +56,7 @@ interface ApiErrorResponse {
 
 const ACCOUNTS_PAGE_SIZE = 8;
 const PAYOUTS_PAGE_SIZE = 8;
+type PayoutDecisionStatus = AdminPayoutDecisionFormValues["status"];
 
 const AFFILIATE_STATUS_STYLES: Record<AffiliateAccountStatus, string> = {
   PENDING: "border-amber-200 bg-amber-50 text-amber-700",
@@ -96,7 +98,7 @@ const getAffiliateStatusActions = (status: AffiliateAccountStatus): AffiliateAcc
   }
 };
 
-const getPayoutStatusActions = (status: PayoutStatus): PayoutStatus[] => {
+const getPayoutStatusActions = (status: PayoutStatus): PayoutDecisionStatus[] => {
   switch (status) {
     case "PENDING":
       return ["APPROVED", "TRANSFERRED", "REJECTED"];
@@ -136,7 +138,11 @@ export default function AdminAffiliatesPage() {
   const updateCommissionRateMutation = useUpdateAdminAffiliateCommissionRate();
   const updatePayoutMutation = useUpdateAdminPayoutRequestStatus();
 
-  const commissionRateForm = useForm<AdminAffiliateCommissionRateFormValues>({
+  const commissionRateForm = useForm<
+    AdminAffiliateCommissionRateFormInputValues,
+    unknown,
+    AdminAffiliateCommissionRateFormValues
+  >({
     resolver: zodResolver(adminAffiliateCommissionRateSchema),
     defaultValues: { commissionRate: 10 },
   });

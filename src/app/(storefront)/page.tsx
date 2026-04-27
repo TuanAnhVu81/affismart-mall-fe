@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, PackageSearch } from "lucide-react";
+import { RecommendationSection } from "@/components/ai/RecommendationSection";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Button } from "@/components/ui/button";
 import { getProducts } from "@/services/product.service";
@@ -93,6 +94,13 @@ export default async function HomePage() {
           )}
         </div>
       </section>
+
+      <RecommendationSection
+        variant="homepage"
+        title="Picked for your next cart"
+        description="A fresh set of product ideas based on current storefront signals."
+        limit={4}
+      />
     </div>
   );
 }

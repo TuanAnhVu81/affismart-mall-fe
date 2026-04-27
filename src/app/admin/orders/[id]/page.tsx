@@ -90,6 +90,14 @@ const NEXT_STATUS_LABELS: Record<Extract<OrderStatus, "CONFIRMED" | "SHIPPED" | 
   DONE: "Mark as completed",
 };
 
+const getNextStatusLabel = (status: AdminOrderStatusUpdateFormValues["status"]) =>
+  NEXT_STATUS_LABELS[status];
+
+const isAdminNextStatus = (
+  status: OrderStatus | undefined,
+): status is AdminOrderStatusUpdateFormValues["status"] =>
+  status === "CONFIRMED" || status === "SHIPPED" || status === "DONE";
+
 const getErrorMessage = (error: unknown, fallback: string) => {
   if (axios.isAxiosError<ApiErrorResponse>(error)) {
     return error.response?.data?.message ?? fallback;
@@ -119,12 +127,13 @@ export default function AdminOrderDetailPage() {
   const currentStatus = order?.status;
   const guidance = currentStatus ? STATUS_GUIDANCE[currentStatus] : null;
   const nextStatus = guidance?.nextStatus;
+  const nextAdminStatus = isAdminNextStatus(nextStatus) ? nextStatus : null;
 
   useEffect(() => {
-    if (nextStatus && ["CONFIRMED", "SHIPPED", "DONE"].includes(nextStatus)) {
-      form.reset({ status: nextStatus as AdminOrderStatusUpdateFormValues["status"] });
+    if (nextAdminStatus) {
+      form.reset({ status: nextAdminStatus });
     }
-  }, [form, nextStatus]);
+  }, [form, nextAdminStatus]);
 
   const itemSummary = useMemo(() => {
     const itemCount = order?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
@@ -456,7 +465,7 @@ export default function AdminOrderDetailPage() {
                 </div>
               </div>
 
-              {nextStatus ? (
+              {nextAdminStatus ? (
                 <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-foreground">Next order status</label>
@@ -467,11 +476,13 @@ export default function AdminOrderDetailPage() {
                         <Select value={field.value} onValueChange={field.onChange}>
                           <SelectTrigger className="h-11 w-full rounded-xl bg-background">
                             <span className="truncate text-left">
-                              {NEXT_STATUS_LABELS[field.value]}
+                              {getNextStatusLabel(field.value)}
                             </span>
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value={nextStatus}>{NEXT_STATUS_LABELS[nextStatus]}</SelectItem>
+                            <SelectItem value={nextAdminStatus}>
+                              {getNextStatusLabel(nextAdminStatus)}
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                       )}
@@ -500,7 +511,7 @@ export default function AdminOrderDetailPage() {
                     ) : (
                       <>
                         <PackageCheck className="size-4" />
-                        {NEXT_STATUS_LABELS[nextStatus]}
+                        {getNextStatusLabel(nextAdminStatus)}
                       </>
                     )}
                   </Button>
