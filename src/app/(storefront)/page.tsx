@@ -1,17 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, PackageSearch } from "lucide-react";
-import { RecommendationSection } from "@/components/ai/RecommendationSection";
+import { LazyRecommendationSection } from "@/components/ai/LazyRecommendationSection";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Button } from "@/components/ui/button";
+import { buildPageMetadata } from "@/lib/seo";
 import { getProducts } from "@/services/product.service";
 import type { Product } from "@/types/product.types";
 
-export const metadata: Metadata = {
-  title: "AffiSmart Mall | Smart Commerce for Customers and Affiliates",
+export const metadata: Metadata = buildPageMetadata({
+  title: "Smart Commerce for Customers and Affiliates",
   description:
     "Explore featured products on AffiSmart Mall, where modern storefront shopping meets affiliate-powered growth.",
-};
+  path: "/",
+});
 
 const getFeaturedProducts = async (): Promise<Product[]> => {
   try {
@@ -95,7 +97,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <RecommendationSection
+      <LazyRecommendationSection
         variant="homepage"
         title="Picked for your next cart"
         description="A fresh set of product ideas based on current storefront signals."

@@ -86,12 +86,14 @@ export function StorefrontNav() {
         <Link
           href="/"
           className={navLinkClassName(isActivePath("/"))}
+          aria-current={isActivePath("/") ? "page" : undefined}
         >
           Home
         </Link>
         <Link
           href="/products"
           className={navLinkClassName(isActivePath("/products"))}
+          aria-current={isActivePath("/products") ? "page" : undefined}
         >
           Products
         </Link>
@@ -99,6 +101,7 @@ export function StorefrontNav() {
           <Link
             href="/orders"
             className={navLinkClassName(isActivePath("/orders"))}
+            aria-current={isActivePath("/orders") ? "page" : undefined}
           >
             Orders
           </Link>
@@ -169,6 +172,7 @@ export function StorefrontNav() {
           </span>
           <button
             type="button"
+            aria-label="Sign out of AffiSmart Mall"
             onClick={handleLogout}
             className={cn(
               utilityButtonClassName(),

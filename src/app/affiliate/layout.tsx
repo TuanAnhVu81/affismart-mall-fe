@@ -1,8 +1,18 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { LayoutDashboard } from "lucide-react";
 import type { PropsWithChildren } from "react";
 import { AffiliateSidebarNav } from "@/components/affiliate/AffiliateSidebarNav";
 import { StorefrontNav } from "@/components/layout/StorefrontNav";
+import { buildPageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildPageMetadata({
+  title: "Affiliate Portal",
+  description:
+    "Track affiliate performance, referral links, commissions, and payout requests in AffiSmart Mall.",
+  path: "/affiliate/dashboard",
+  noIndex: true,
+});
 
 export default function AffiliateLayout({ children }: PropsWithChildren) {
   return (

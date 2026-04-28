@@ -1,8 +1,18 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ShieldCheck } from "lucide-react";
 import type { PropsWithChildren } from "react";
 import { AdminSidebar } from "@/components/layout/AdminSidebar";
 import { StorefrontNav } from "@/components/layout/StorefrontNav";
+import { buildPageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildPageMetadata({
+  title: "Admin Control Room",
+  description:
+    "Manage AffiSmart Mall catalog, orders, analytics, affiliates, users, payouts, and inventory operations.",
+  path: "/admin/dashboard",
+  noIndex: true,
+});
 
 export default function AdminLayout({ children }: PropsWithChildren) {
   return (

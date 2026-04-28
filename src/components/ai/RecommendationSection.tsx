@@ -12,7 +12,7 @@ import { getProductsByIds } from "@/services/product.service";
 
 type RecommendationSectionVariant = "homepage" | "related";
 
-interface RecommendationSectionProps {
+export interface RecommendationSectionProps {
   variant: RecommendationSectionVariant;
   productId?: number;
   title?: string;

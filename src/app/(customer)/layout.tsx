@@ -1,7 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { Metadata } from "next";
 import type { PropsWithChildren } from "react";
 import { StorefrontNav } from "@/components/layout/StorefrontNav";
+import { buildPageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildPageMetadata({
+  title: "Customer Account",
+  description:
+    "Review checkout details, order history, and customer activity in your AffiSmart Mall account.",
+  path: "/orders",
+  noIndex: true,
+});
 
 export default function CustomerLayout({ children }: PropsWithChildren) {
   return (

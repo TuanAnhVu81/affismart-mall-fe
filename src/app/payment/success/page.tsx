@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import { PaymentSuccessContent } from "@/components/payment/PaymentSuccessContent";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Payment Success | AffiSmart Mall",
   description:
     "Your payment has been completed successfully. Track your order status on AffiSmart Mall.",
-};
+  path: "/payment/success",
+  noIndex: true,
+});
 
 interface PaymentSuccessPageProps {
   searchParams?: Record<string, string | string[] | undefined>;
@@ -28,4 +31,3 @@ export default function PaymentSuccessPage({
     </main>
   );
 }
-

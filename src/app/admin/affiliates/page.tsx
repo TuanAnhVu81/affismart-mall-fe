@@ -462,6 +462,8 @@ export default function AdminAffiliatesPage() {
         <div className="inline-flex rounded-full border border-border/80 bg-muted/20 p-1 shadow-sm">
           <button
             type="button"
+            aria-label="Show affiliate accounts table"
+            aria-pressed={activeTab === "accounts"}
             className={cn(
               "inline-flex h-11 items-center rounded-full px-5 text-sm font-semibold transition-all",
               activeTab === "accounts"
@@ -474,6 +476,8 @@ export default function AdminAffiliatesPage() {
           </button>
           <button
             type="button"
+            aria-label="Show payout requests table"
+            aria-pressed={activeTab === "payouts"}
             className={cn(
               "inline-flex h-11 items-center rounded-full px-5 text-sm font-semibold transition-all",
               activeTab === "payouts"
@@ -605,6 +609,7 @@ export default function AdminAffiliatesPage() {
                 <button
                   key={status}
                   type="button"
+                  aria-label={`Update affiliate account to ${status}`}
                   className="flex w-full items-center justify-between rounded-2xl border border-border/70 bg-muted/10 px-4 py-4 text-left transition-colors hover:border-primary/15 hover:bg-primary/[0.04]"
                   onClick={() => void handleAccountStatusUpdate(status)}
                   disabled={updateAccountStatusMutation.isPending}

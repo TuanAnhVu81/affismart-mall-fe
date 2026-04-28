@@ -16,8 +16,6 @@ interface ProductCardProps {
   product: Product;
 }
 
-const passthroughImageLoader = ({ src }: { src: string }) => src;
-
 export function ProductCard({ product }: ProductCardProps) {
   const addItem = useCartStore((state) => state.addItem);
   const openDrawer = useCartStore((state) => state.openDrawer);
@@ -56,9 +54,8 @@ export function ProductCard({ product }: ProductCardProps) {
               src={product.imageUrl}
               alt={product.name}
               fill
-              loader={passthroughImageLoader}
               unoptimized
-              className="object-cover transition-transform duration-300 hover:scale-105"
+              className="object-contain p-4 transition-transform duration-300 hover:scale-105"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             />
           ) : (

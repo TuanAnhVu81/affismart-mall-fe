@@ -2,15 +2,17 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ProductFilters } from "@/components/product/ProductFilters";
 import { ProductGrid } from "@/components/product/ProductGrid";
+import { buildPageMetadata } from "@/lib/seo";
 import { getActiveCategories } from "@/services/category.service";
 import { getProducts, type GetProductsParams } from "@/services/product.service";
 import type { ProductListResponse } from "@/types/product.types";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Product Catalog | AffiSmart Mall",
   description:
     "Browse the AffiSmart Mall product catalog with smart filtering by keyword, category, and price range.",
-};
+  path: "/products",
+});
 
 interface ProductsPageProps {
   searchParams?: Record<string, string | string[] | undefined>;

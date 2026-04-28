@@ -28,6 +28,7 @@ export function Providers({ children }: PropsWithChildren) {
       {children}
       <Toaster
         closeButton
+        duration={4000}
         position="top-right"
         richColors
         toastOptions={{

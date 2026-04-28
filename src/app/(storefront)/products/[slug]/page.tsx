@@ -3,11 +3,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, PackageCheck } from "lucide-react";
-import { RecommendationSection } from "@/components/ai/RecommendationSection";
+import { LazyRecommendationSection } from "@/components/ai/LazyRecommendationSection";
 import { ProductViewTracker } from "@/components/ai/ProductViewTracker";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ProductAddToCart } from "@/components/product/ProductAddToCart";
+import { buildPageMetadata } from "@/lib/seo";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { getProductBySlug, getProducts } from "@/services/product.service";
 
@@ -16,8 +17,6 @@ interface ProductDetailPageProps {
     slug: string;
   };
 }
-
-const passthroughImageLoader = ({ src }: { src: string }) => src;
 
 export async function generateStaticParams() {
   try {
@@ -38,18 +37,23 @@ export async function generateMetadata({
 }: ProductDetailPageProps): Promise<Metadata> {
   try {
     const product = await getProductBySlug(params.slug);
+    const description =
+      product.description?.trim().slice(0, 100) ??
+      `Explore ${product.name} on AffiSmart Mall.`;
 
-    return {
-      title: `${product.name} | AffiSmart Mall`,
-      description:
-        product.description?.slice(0, 160) ??
-        `Explore ${product.name} on AffiSmart Mall.`,
-    };
+    return buildPageMetadata({
+      title: product.name,
+      description,
+      path: `/products/${product.slug}`,
+      image: product.imageUrl,
+    });
   } catch {
-    return {
+    return buildPageMetadata({
       title: "Product not found | AffiSmart Mall",
       description: "The requested product could not be found.",
-    };
+      path: `/products/${params.slug}`,
+      noIndex: true,
+    });
   }
 }
 
@@ -85,9 +89,8 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
               src={product.imageUrl}
               alt={product.name}
               fill
-              loader={passthroughImageLoader}
               unoptimized
-              className="object-cover"
+              className="object-contain p-4"
               sizes="(max-width: 1024px) 100vw, 50vw"
             />
           ) : (
@@ -157,7 +160,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
         </div>
       </div>
 
-      <RecommendationSection
+      <LazyRecommendationSection
         variant="related"
         productId={product.id}
         title="Related picks"

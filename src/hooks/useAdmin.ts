@@ -209,11 +209,15 @@ export const useUploadAdminProductImage = () =>
     mutationFn: (file: File) => uploadAdminProductImage(file),
   });
 
+// Analytics data is acceptable to be stale for 5 minutes — no need to refetch on every visit.
+const ANALYTICS_STALE_TIME = 5 * 60 * 1_000;
+
 export const useAdminLowStockProducts = () =>
   useQuery({
     queryKey: ADMIN_LOW_STOCK_PRODUCTS_QUERY_KEY,
     queryFn: getAdminLowStockProducts,
     enabled: useAdminQueryEnabled(),
+    staleTime: ANALYTICS_STALE_TIME,
   });
 
 export const useAdminAnalyticsDashboard = () =>
@@ -221,6 +225,7 @@ export const useAdminAnalyticsDashboard = () =>
     queryKey: ADMIN_ANALYTICS_DASHBOARD_QUERY_KEY,
     queryFn: getAdminAnalyticsDashboard,
     enabled: useAdminQueryEnabled(),
+    staleTime: ANALYTICS_STALE_TIME,
   });
 
 export const useAdminTopProducts = (limit = 10) =>
@@ -228,6 +233,7 @@ export const useAdminTopProducts = (limit = 10) =>
     queryKey: [...ADMIN_TOP_PRODUCTS_QUERY_KEY, limit],
     queryFn: () => getAdminTopProducts(limit),
     enabled: useAdminQueryEnabled(),
+    staleTime: ANALYTICS_STALE_TIME,
   });
 
 export const useAdminTopAffiliates = (limit = 10) =>
@@ -235,6 +241,7 @@ export const useAdminTopAffiliates = (limit = 10) =>
     queryKey: [...ADMIN_TOP_AFFILIATES_QUERY_KEY, limit],
     queryFn: () => getAdminTopAffiliates(limit),
     enabled: useAdminQueryEnabled(),
+    staleTime: ANALYTICS_STALE_TIME,
   });
 
 export const useAdminUsers = (params: AdminUsersQueryParams = {}) =>

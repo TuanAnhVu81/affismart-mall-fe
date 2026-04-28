@@ -1,6 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { Metadata } from "next";
 import type { PropsWithChildren } from "react";
+import { buildPageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildPageMetadata({
+  title: "Account Access",
+  description:
+    "Sign in or create an AffiSmart Mall account to manage orders, checkout, and affiliate access.",
+  path: "/login",
+  noIndex: true,
+});
 
 export default function AuthLayout({ children }: PropsWithChildren) {
   return (

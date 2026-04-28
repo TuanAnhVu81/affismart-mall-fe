@@ -132,9 +132,10 @@ export default function AdminDashboardPage() {
     sortBy: "createdAt",
     sortDir: "desc",
   });
+  // Fetch last 20 completed orders for revenue trend — chart only renders the last 7 days
   const revenueOrdersQuery = useAdminOrders({
     page: 0,
-    size: 50,
+    size: 20,
     sortBy: "createdAt",
     sortDir: "desc",
     status: "DONE",

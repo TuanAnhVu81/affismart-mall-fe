@@ -130,8 +130,9 @@ const findProductBySlugFromCatalog = async (slug: string) => {
 };
 
 export const getProducts = async (params: GetProductsParams = {}) => {
+  const endpoint = params.search?.trim() ? "/products/search" : "/products";
   const { data } = await api.get<ApiResponse<PageResponse<ProductPayload>>>(
-    "/products",
+    endpoint,
     {
       params: sanitizeProductParams(params),
     },

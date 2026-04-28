@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CircleAlert, RotateCcw, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { buildPageMetadata } from "@/lib/seo";
 import {
   Card,
   CardContent,
@@ -11,11 +12,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Payment Cancelled | AffiSmart Mall",
   description:
     "Your payment was cancelled. You can return to checkout or continue browsing products.",
-};
+  path: "/payment/cancel",
+  noIndex: true,
+});
 
 export default function PaymentCancelPage() {
   return (
@@ -65,4 +68,3 @@ export default function PaymentCancelPage() {
     </main>
   );
 }
-
