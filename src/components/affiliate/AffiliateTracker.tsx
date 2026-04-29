@@ -6,12 +6,23 @@ import { trackAffiliateClick } from "@/services/affiliate.service";
 
 const REF_QUERY_KEY = "ref";
 const REF_COOKIE_KEY = "ref_code";
+const REF_STORAGE_KEY = "affismart_ref_code";
 const REF_COOKIE_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
 
 const setRefCookie = (refCode: string) => {
-  document.cookie = `${REF_COOKIE_KEY}=${encodeURIComponent(
-    refCode,
-  )}; path=/; max-age=${REF_COOKIE_MAX_AGE_SECONDS}; SameSite=Lax`;
+	document.cookie = `${REF_COOKIE_KEY}=${encodeURIComponent(
+		refCode,
+	)}; path=/; max-age=${REF_COOKIE_MAX_AGE_SECONDS}; SameSite=Lax`;
+};
+
+const persistRefCode = (refCode: string) => {
+	const normalizedRefCode = refCode.trim().toUpperCase();
+	if (!normalizedRefCode) {
+		return;
+	}
+
+	setRefCookie(normalizedRefCode);
+	window.localStorage.setItem(REF_STORAGE_KEY, normalizedRefCode);
 };
 
 const cleanRefQueryParam = (pathname: string, queryString: string) => {
@@ -47,15 +58,16 @@ export function AffiliateTracker() {
     let isCancelled = false;
 
     const runTracking = async () => {
-      try {
-        const response = await trackAffiliateClick(refCode);
-        if (isCancelled || response.status !== 200) {
-          return;
-        }
+		try {
+			persistRefCode(refCode);
 
-        setRefCookie(refCode);
-        cleanRefQueryParam(pathname, searchParamsString);
-      } catch {
+			const response = await trackAffiliateClick(refCode);
+			if (isCancelled || response.status !== 200) {
+				return;
+			}
+
+			cleanRefQueryParam(pathname, searchParamsString);
+		} catch {
         // Silent fail: tracking should never block storefront rendering.
       }
     };
@@ -69,4 +81,3 @@ export function AffiliateTracker() {
 
   return null;
 }
-

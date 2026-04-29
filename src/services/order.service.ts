@@ -61,6 +61,8 @@ interface PageResponse<T> {
   last: boolean;
 }
 
+const REF_STORAGE_KEY = "affismart_ref_code";
+
 const unwrapData = <T>(payload: ApiResponse<T> | T, errorMessage: string): T => {
   const data =
     payload && typeof payload === "object" && "data" in payload
@@ -92,9 +94,24 @@ const parseCookie = (name: string) => {
   return value ? decodeURIComponent(value) : undefined;
 };
 
+const normalizeRefCode = (value: string | undefined) => {
+  const normalized = value?.trim().toUpperCase();
+  return normalized || undefined;
+};
+
+const readPersistedRefCode = () => {
+  if (typeof window === "undefined") {
+    return undefined;
+  }
+
+  return normalizeRefCode(
+    parseCookie("ref_code") ?? window.localStorage.getItem(REF_STORAGE_KEY) ?? undefined,
+  );
+};
+
 const toCreateOrderRequestBody = (payload: CreateOrderPayload) => ({
   shipping_address: payload.shippingAddress.trim(),
-  ref_code: payload.refCode ?? parseCookie("ref_code"),
+  ref_code: normalizeRefCode(payload.refCode) ?? readPersistedRefCode(),
   items: payload.items.map((item) => ({
     product_id: item.productId,
     quantity: item.quantity,

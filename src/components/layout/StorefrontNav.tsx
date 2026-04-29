@@ -166,10 +166,18 @@ export function StorefrontNav() {
       {isAuthenticated && user ? (
         <div className="flex items-center gap-2">
           {canApplyAffiliate ? <AffiliateRegisterDialog /> : null}
-          <span className="hidden h-10 items-center gap-1.5 rounded-full border border-border/80 bg-background px-3.5 py-1.5 text-sm text-foreground sm:inline-flex">
+          <Link
+            href="/profile"
+            className={cn(
+              "inline-flex h-10 items-center gap-1.5 rounded-full border border-border/80 bg-background px-3.5 py-1.5 text-sm text-foreground transition-all hover:border-primary/30 hover:text-primary",
+              isActivePath("/profile") ? "border-primary/30 bg-primary/8 text-primary" : null,
+            )}
+            aria-label="View personal profile"
+            aria-current={isActivePath("/profile") ? "page" : undefined}
+          >
             <UserCircle2 className="size-4 text-primary" />
-            Hi, {displayName}
-          </span>
+            <span className="hidden sm:inline">Hi, {displayName}</span>
+          </Link>
           <button
             type="button"
             aria-label="Sign out of AffiSmart Mall"

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { ArrowLeft, CreditCard, Lock, MapPin, ShoppingBag } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,8 @@ interface ApiErrorResponse {
   message?: string;
 }
 
-const passthroughImageLoader = ({ src }: { src: string }) => src;
+const REF_COOKIE_KEY = "ref_code";
+const REF_STORAGE_KEY = "affismart_ref_code";
 
 const getCheckoutErrorMessage = (error: unknown) => {
   if (axios.isAxiosError<ApiErrorResponse>(error)) {
@@ -48,7 +49,7 @@ const readRefCodeCookie = () => {
     return undefined;
   }
 
-  const key = "ref_code=";
+  const key = `${REF_COOKIE_KEY}=`;
   const cookie = document.cookie
     .split("; ")
     .find((entry) => entry.startsWith(key));
@@ -58,10 +59,23 @@ const readRefCodeCookie = () => {
   }
 
   const value = cookie.slice(key.length).trim();
-  return value || undefined;
+  return value ? decodeURIComponent(value).toUpperCase() : undefined;
+};
+
+const readStoredRefCode = () => {
+  if (typeof window === "undefined") {
+    return undefined;
+  }
+
+  return (
+    readRefCodeCookie() ??
+    window.localStorage.getItem(REF_STORAGE_KEY)?.trim().toUpperCase() ??
+    undefined
+  );
 };
 
 export default function CheckoutPage() {
+  const [refCode, setRefCode] = useState<string | undefined>(undefined);
   const items = useCartStore((state) => state.items);
   const totalItems = useCartStore((state) => state.totalItems);
   const totalPrice = useCartStore((state) => state.totalPrice);
@@ -77,9 +91,12 @@ export default function CheckoutPage() {
     mode: "onTouched",
   });
 
-  const refCode = useMemo(readRefCodeCookie, []);
   const isSubmitting =
     createOrderMutation.isPending || createPaymentSessionMutation.isPending;
+
+  useEffect(() => {
+    setRefCode(readStoredRefCode());
+  }, []);
 
   const onSubmit = async (values: CheckoutFormValues) => {
     if (!items.length) {
@@ -89,10 +106,12 @@ export default function CheckoutPage() {
 
     try {
       closeDrawer();
+      const appliedRefCode = readStoredRefCode();
+      setRefCode(appliedRefCode);
 
       const order = await createOrderMutation.mutateAsync({
         shippingAddress: values.shippingAddress,
-        refCode,
+        refCode: appliedRefCode,
         items: items.map((item) => ({
           productId: item.productId,
           quantity: item.quantity,
@@ -227,7 +246,6 @@ export default function CheckoutPage() {
                         src={item.imageUrl}
                         alt={item.name}
                         fill
-                        loader={passthroughImageLoader}
                         unoptimized
                         className="object-cover"
                         sizes="56px"
@@ -290,4 +308,3 @@ export default function CheckoutPage() {
     </div>
   );
 }
-

@@ -50,6 +50,27 @@ export const checkoutSchema = z.object({
     .max(300, "Shipping address must be 300 characters or fewer."),
 });
 
+export const profileUpdateSchema = z.object({
+  fullName: z
+    .string()
+    .trim()
+    .min(1, "Full name is required.")
+    .max(100, "Full name must be 100 characters or fewer."),
+  phone: z
+    .string()
+    .trim()
+    .max(20, "Phone must be 20 characters or fewer.")
+    .regex(/^(|[0-9+()\-\s]{8,20})$/, "Phone number format is invalid.")
+    .optional()
+    .or(z.literal("")),
+  defaultShippingAddress: z
+    .string()
+    .trim()
+    .max(2000, "Default shipping address must be 2000 characters or fewer.")
+    .optional()
+    .or(z.literal("")),
+});
+
 export const affiliateRegisterSchema = z.object({
   promotionChannel: z
     .string()
@@ -157,6 +178,7 @@ export const adminPayoutDecisionSchema = z.object({
 export type LoginFormValues = z.infer<typeof loginSchema>;
 export type RegisterFormValues = z.infer<typeof registerSchema>;
 export type CheckoutFormValues = z.infer<typeof checkoutSchema>;
+export type ProfileUpdateFormValues = z.infer<typeof profileUpdateSchema>;
 export type AffiliateRegisterFormValues = z.infer<typeof affiliateRegisterSchema>;
 export type AdminCategoryFormValues = z.infer<typeof adminCategorySchema>;
 export type AdminProductFormInputValues = z.input<typeof adminProductSchema>;

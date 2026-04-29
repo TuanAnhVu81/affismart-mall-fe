@@ -1,7 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
-import type { PropsWithChildren } from "react";
+import { Suspense, type PropsWithChildren } from "react";
+import { AffiliateTracker } from "@/components/affiliate/AffiliateTracker";
 import { StorefrontNav } from "@/components/layout/StorefrontNav";
 import { buildPageMetadata } from "@/lib/seo";
 
@@ -14,9 +15,13 @@ export const metadata: Metadata = buildPageMetadata({
 });
 
 export default function CustomerLayout({ children }: PropsWithChildren) {
-  return (
-    <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-20 border-b border-border/80 bg-background/90 backdrop-blur-md">
+	return (
+		<div className="min-h-screen bg-background">
+			<Suspense fallback={null}>
+				<AffiliateTracker />
+			</Suspense>
+
+			<header className="sticky top-0 z-20 border-b border-border/80 bg-background/90 backdrop-blur-md">
         <div className="mx-auto flex h-[4.5rem] w-full max-w-6xl items-center justify-between px-4 sm:px-6">
           <Link href="/" className="inline-flex items-center gap-3">
             <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-border bg-white shadow-soft">

@@ -19,12 +19,21 @@ interface ApiErrorPayload {
   error_code?: string;
 }
 
-interface AuthUserPayload {
+export interface AuthUserPayload {
   id: number;
   email: string;
+  fullName?: string;
   full_name?: string;
+  phone?: string | null;
+  defaultShippingAddress?: string | null;
+  default_shipping_address?: string | null;
   status?: string;
+  affiliate_status?: string | null;
   roles?: string[];
+  createdAt?: string | null;
+  created_at?: string | null;
+  updatedAt?: string | null;
+  updated_at?: string | null;
 }
 
 interface AuthTokenPayload {
@@ -118,11 +127,17 @@ const buildFallbackFullName = (email: string) => {
   return normalized || "User";
 };
 
-const mapAuthUserToUser = (payload: AuthUserPayload): User => ({
+export const mapAuthUserToUser = (payload: AuthUserPayload): User => ({
   id: payload.id,
   email: payload.email,
-  fullName: payload.full_name ?? buildFallbackFullName(payload.email),
+  fullName: payload.full_name ?? payload.fullName ?? buildFallbackFullName(payload.email),
+  phone: payload.phone,
+  defaultShippingAddress:
+    payload.default_shipping_address ?? payload.defaultShippingAddress,
   status: payload.status,
+  affiliateStatus: payload.affiliate_status as User["affiliateStatus"],
+  createdAt: payload.created_at ?? payload.createdAt,
+  updatedAt: payload.updated_at ?? payload.updatedAt,
   roles: normalizeRoles(payload.roles),
 });
 
