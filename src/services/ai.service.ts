@@ -53,8 +53,36 @@ const normalizeRecommendationResult = (
   generatedAt: payload.generated_at,
 });
 
+const resolveCurrentUserName = () => {
+  const fullName = useAuthStore.getState().user?.fullName?.trim();
+  return fullName || undefined;
+};
+
+const personalizeAssistantAnswer = (answer: string) => {
+  const userName = resolveCurrentUserName();
+
+  return answer
+    .replace(
+      /\s*\((?:user[\s_-]?id|userid)\s*[:=]\s*\d+\)\.?/gi,
+      (match) => {
+        const hasTrailingPeriod = match.trim().endsWith(".");
+        if (!userName) {
+          return hasTrailingPeriod ? "." : "";
+        }
+
+        return `, ${userName}${hasTrailingPeriod ? "." : ""}`;
+      },
+    )
+    .replace(
+      /\b(?:user[\s_-]?id|userid)\s*[:=]\s*\d+\b/gi,
+      userName ?? "your account",
+    )
+    .replace(/\s+,/g, ",")
+    .replace(/,{2,}/g, ",");
+};
+
 const normalizeChatResult = (payload: AiChatPayload): AiChatResult => ({
-  answer: payload.answer,
+  answer: personalizeAssistantAnswer(payload.answer),
   restrictedTopic: Boolean(payload.restricted_topic),
   model: payload.model,
   generatedAt: payload.generated_at,

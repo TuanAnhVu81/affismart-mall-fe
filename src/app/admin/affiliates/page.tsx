@@ -378,7 +378,14 @@ export default function AdminAffiliatesPage() {
         const options = getPayoutStatusActions(request.status);
 
         if (!options.length) {
-          return <span className="text-sm text-muted-foreground">No action</span>;
+          return (
+            <span
+              className="text-sm text-muted-foreground"
+              title="This payout request is already closed."
+            >
+              Closed
+            </span>
+          );
         }
 
         return (

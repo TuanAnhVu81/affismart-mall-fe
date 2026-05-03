@@ -1,8 +1,19 @@
 "use client";
 
-import { AlertCircle, Copy, Link as LinkIcon, Loader2, Plus, Store } from "lucide-react";
+import {
+  AlertCircle,
+  Check,
+  ChevronDown,
+  Copy,
+  Link as LinkIcon,
+  Loader2,
+  PackageSearch,
+  Plus,
+  Search,
+  Store,
+} from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AffiliatePagination } from "@/components/affiliate/AffiliatePagination";
 import { ReferralLinkStatusBadge } from "@/components/affiliate/AffiliateStatusBadge";
@@ -39,7 +50,9 @@ import {
 } from "@/components/ui/table";
 import { useAffiliateLinks, useCreateAffiliateLink, useToggleAffiliateLink } from "@/hooks/useAffiliate";
 import { useProducts } from "@/hooks/useProducts";
+import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/auth.store";
+import type { Product } from "@/types/product.types";
 
 const LINK_PAGE_SIZE = 10;
 
@@ -59,18 +72,64 @@ function CreateLinkDialog({
   onOpenChange: (open: boolean) => void;
 }) {
   const [productId, setProductId] = useState<string>("store");
+  const [selectedProductLabel, setSelectedProductLabel] = useState("Whole store");
+  const [productSearch, setProductSearch] = useState("");
+  const [isProductPickerOpen, setIsProductPickerOpen] = useState(false);
+  const productPickerRef = useRef<HTMLDivElement | null>(null);
+  const deferredProductSearch = useDeferredValue(productSearch.trim());
   const createLinkMutation = useCreateAffiliateLink();
-  const { data: productsData, isLoading: isLoadingProducts } = useProducts({
-    size: 100,
+  const { data: productsData, isLoading: isLoadingProducts, isFetching: isFetchingProducts } = useProducts({
+    search: deferredProductSearch || undefined,
+    size: 20,
     sortBy: "newest",
   });
 
   const products = productsData?.content ?? [];
   const selectedProduct = products.find((product) => product.id.toString() === productId);
-  const selectedProductLabel =
+  const currentProductLabel =
     productId === "store"
       ? "Whole store"
-      : selectedProduct?.name ?? "Select a product";
+      : selectedProduct?.name ?? selectedProductLabel;
+  const isSearchingProducts = isLoadingProducts || isFetchingProducts;
+
+  useEffect(() => {
+    if (!open) {
+      setIsProductPickerOpen(false);
+      setProductSearch("");
+    }
+  }, [open]);
+
+  useEffect(() => {
+    if (!isProductPickerOpen) {
+      return;
+    }
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (
+        productPickerRef.current
+        && !productPickerRef.current.contains(event.target as Node)
+      ) {
+        setIsProductPickerOpen(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [isProductPickerOpen]);
+
+  const selectWholeStore = () => {
+    setProductId("store");
+    setSelectedProductLabel("Whole store");
+    setProductSearch("");
+    setIsProductPickerOpen(false);
+  };
+
+  const selectProduct = (product: Product) => {
+    setProductId(product.id.toString());
+    setSelectedProductLabel(product.name);
+    setProductSearch("");
+    setIsProductPickerOpen(false);
+  };
 
   const handleCreate = async () => {
     try {
@@ -80,6 +139,9 @@ function CreateLinkDialog({
       toast.success("Affiliate link created successfully.");
       onOpenChange(false);
       setProductId("store");
+      setSelectedProductLabel("Whole store");
+      setProductSearch("");
+      setIsProductPickerOpen(false);
     } catch {
       toast.error("Failed to create affiliate link. Please try again.");
     }
@@ -89,8 +151,11 @@ function CreateLinkDialog({
 
   return (
     <Dialog open={open} onOpenChange={isPending ? undefined : onOpenChange}>
-      <DialogContent className="max-w-md p-0 sm:max-w-lg" showCloseButton={!isPending}>
-        <DialogHeader className="border-b border-border/70 px-6 py-5">
+      <DialogContent
+        className="flex max-h-[calc(100vh-2rem)] max-w-md flex-col overflow-hidden p-0 sm:max-w-lg"
+        showCloseButton={!isPending}
+      >
+        <DialogHeader className="shrink-0 border-b border-border/70 px-6 py-5">
           <DialogTitle className="inline-flex items-center gap-2 text-lg">
             <LinkIcon className="size-4 text-primary" />
             Create new referral link
@@ -100,47 +165,132 @@ function CreateLinkDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 px-6 py-6">
-          <div className="rounded-2xl border border-border/70 bg-muted/20 px-4 py-3 text-sm text-muted-foreground">
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-6 py-5">
+          <div className="rounded-2xl border border-border/70 bg-muted/20 px-4 py-3 text-sm leading-6 text-muted-foreground">
             Pick a product when you want a deep link to a specific detail page. Choose the whole store option when you want a broader campaign entry point.
           </div>
 
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">Target product</label>
-            <Select
-              value={productId}
-              onValueChange={(value) => setProductId(value || "store")}
-              disabled={isLoadingProducts || isPending}
-            >
-              <SelectTrigger className="h-11 w-full rounded-xl">
-                <span className="flex min-w-0 items-center gap-2 text-left">
+            <div ref={productPickerRef} className="relative">
+              <Button
+                type="button"
+                variant="outline"
+                aria-haspopup="listbox"
+                aria-expanded={isProductPickerOpen}
+                aria-label="Choose referral link target product"
+                disabled={isPending}
+                className="h-11 w-full justify-between rounded-xl px-3 text-left font-normal"
+                onClick={() => setIsProductPickerOpen((current) => !current)}
+              >
+                <span className="flex min-w-0 items-center gap-2">
                   {productId === "store" ? (
                     <Store className="size-4 shrink-0 text-primary" />
-                  ) : null}
-                  <span className="truncate">{selectedProductLabel}</span>
+                  ) : (
+                    <PackageSearch className="size-4 shrink-0 text-muted-foreground" />
+                  )}
+                  <span className="truncate">{currentProductLabel}</span>
                 </span>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="store">
-                  <div className="flex items-center gap-2 font-medium text-primary">
-                    <Store className="size-4" />
-                    Whole store
+                <ChevronDown
+                  className={cn(
+                    "size-4 shrink-0 text-muted-foreground transition-transform",
+                    isProductPickerOpen ? "rotate-180" : "",
+                  )}
+                />
+              </Button>
+
+              {isProductPickerOpen ? (
+                <div className="mt-2 overflow-hidden rounded-2xl border border-border/80 bg-popover text-popover-foreground shadow-[0_18px_48px_rgba(15,23,42,0.16)] ring-1 ring-foreground/5">
+                  <div className="border-b border-border/70 p-3">
+                    <div className="flex h-10 items-center gap-2 rounded-xl border border-input bg-background px-3 focus-within:border-primary/70 focus-within:ring-3 focus-within:ring-primary/10">
+                      <Search className="size-4 shrink-0 text-muted-foreground" />
+                      <input
+                        value={productSearch}
+                        type="search"
+                        autoFocus
+                        placeholder="Search by product name..."
+                        aria-label="Search products"
+                        className="h-full min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                        onChange={(event) => setProductSearch(event.target.value)}
+                      />
+                      {isSearchingProducts ? (
+                        <Loader2 className="size-4 shrink-0 animate-spin text-primary" />
+                      ) : null}
+                    </div>
                   </div>
-                </SelectItem>
-                {products.map((product) => (
-                  <SelectItem key={product.id} value={product.id.toString()}>
-                    {product.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+
+                  <div className="max-h-48 overflow-y-auto p-2 sm:max-h-56" role="listbox" aria-label="Referral link targets">
+                    <button
+                      type="button"
+                      role="option"
+                      aria-selected={productId === "store"}
+                      className={cn(
+                        "flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors hover:bg-primary/8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+                        productId === "store" ? "bg-primary/8 text-primary" : "",
+                      )}
+                      onClick={selectWholeStore}
+                    >
+                      <span className="flex min-w-0 items-center gap-2 font-medium">
+                        <Store className="size-4 shrink-0" />
+                        Whole store
+                      </span>
+                      {productId === "store" ? <Check className="size-4 shrink-0" /> : null}
+                    </button>
+
+                    <div className="my-2 h-px bg-border/70" />
+
+                    {products.map((product) => (
+                      <button
+                        key={product.id}
+                        type="button"
+                        role="option"
+                        aria-selected={productId === product.id.toString()}
+                        className={cn(
+                          "flex w-full items-start justify-between gap-3 rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+                          productId === product.id.toString() ? "bg-primary/8" : "",
+                        )}
+                        onClick={() => selectProduct(product)}
+                      >
+                        <span className="min-w-0">
+                          <span className="block truncate text-sm font-medium text-foreground">
+                            {product.name}
+                          </span>
+                          <span className="mt-0.5 block truncate text-xs text-muted-foreground">
+                            {product.categoryName} · {product.sku ?? product.slug}
+                          </span>
+                        </span>
+                        {productId === product.id.toString() ? (
+                          <Check className="mt-0.5 size-4 shrink-0 text-primary" />
+                        ) : null}
+                      </button>
+                    ))}
+
+                    {!isSearchingProducts && products.length === 0 ? (
+                      <div className="px-3 py-8 text-center">
+                        <PackageSearch className="mx-auto size-6 text-muted-foreground" />
+                        <p className="mt-2 text-sm font-medium text-foreground">No products found</p>
+                        <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                          Try another keyword or use the whole store link.
+                        </p>
+                      </div>
+                    ) : null}
+                  </div>
+
+                  {productsData && productsData.totalElements > products.length ? (
+                    <div className="border-t border-border/70 bg-muted/20 px-4 py-2 text-xs text-muted-foreground">
+                      Showing {products.length} of {productsData.totalElements} matches. Keep typing to narrow the list.
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
             <p className="pt-1 text-xs text-muted-foreground">
               Product links open the detail page directly. Store links bring customers to the homepage.
             </p>
           </div>
         </div>
 
-        <DialogFooter className="rounded-b-xl bg-muted/30">
+        <DialogFooter className="shrink-0 rounded-b-xl bg-muted/30">
           <Button
             type="button"
             variant="outline"

@@ -81,6 +81,7 @@ export const useAffiliateDashboard = () =>
     queryKey: AFFILIATE_DASHBOARD_QUERY_KEY,
     queryFn: getMyDashboard,
     enabled: useAffiliateQueryEnabled(),
+    staleTime: 5 * 60 * 1_000, // Cache for 5 minutes
   });
 
 export const useAffiliateLinks = (params: AffiliateLinksQueryParams = {}) =>
