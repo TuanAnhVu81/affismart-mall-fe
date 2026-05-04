@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { ProductAddToCart } from "@/components/product/ProductAddToCart";
 import { buildPageMetadata } from "@/lib/seo";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import { getProductBySlug, getProducts } from "@/services/product.service";
+import { getProductBySlug } from "@/services/product.service";
 
 interface ProductDetailPageProps {
   params: {
@@ -18,19 +18,11 @@ interface ProductDetailPageProps {
   };
 }
 
-export async function generateStaticParams() {
-  try {
-    const products = await getProducts({
-      page: 0,
-      size: 12,
-      sortBy: "newest",
-    });
+// ISR: Cache each product page for 5 minutes, then revalidate in the background.
+// No generateStaticParams needed — new slugs are rendered on first visit (dynamicParams = true by default).
+// This avoids both build-time API calls (no cold-start timeout) and per-request SSR overhead.
+export const revalidate = 300;
 
-    return products.content.map((product) => ({ slug: product.slug }));
-  } catch {
-    return [];
-  }
-}
 
 export async function generateMetadata({
   params,
