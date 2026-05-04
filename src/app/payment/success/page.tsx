@@ -10,6 +10,9 @@ export const metadata: Metadata = buildPageMetadata({
   noIndex: true,
 });
 
+// Force dynamic: page reads searchParams (orderId) at runtime.
+export const dynamic = "force-dynamic";
+
 interface PaymentSuccessPageProps {
   searchParams?: Record<string, string | string[] | undefined>;
 }

@@ -40,6 +40,7 @@ const redirectToLogin = () => {
 
 export const api = axios.create({
   baseURL,
+  timeout: 15000,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",

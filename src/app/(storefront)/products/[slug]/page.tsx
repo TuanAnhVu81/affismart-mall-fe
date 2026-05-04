@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { cache } from "react";
 import { ArrowLeft, PackageCheck } from "lucide-react";
 import { LazyRecommendationSection } from "@/components/ai/LazyRecommendationSection";
 import { ProductViewTracker } from "@/components/ai/ProductViewTracker";
@@ -23,12 +24,13 @@ interface ProductDetailPageProps {
 // This avoids both build-time API calls (no cold-start timeout) and per-request SSR overhead.
 export const revalidate = 300;
 
+const getProductForPage = cache((slug: string) => getProductBySlug(slug));
 
 export async function generateMetadata({
   params,
 }: ProductDetailPageProps): Promise<Metadata> {
   try {
-    const product = await getProductBySlug(params.slug);
+    const product = await getProductForPage(params.slug);
     const description =
       product.description?.trim().slice(0, 100) ??
       `Explore ${product.name} on AffiSmart Mall.`;
@@ -53,7 +55,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
   let product;
 
   try {
-    product = await getProductBySlug(params.slug);
+    product = await getProductForPage(params.slug);
   } catch {
     notFound();
   }

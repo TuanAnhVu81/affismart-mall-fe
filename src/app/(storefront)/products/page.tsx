@@ -14,6 +14,10 @@ export const metadata: Metadata = buildPageMetadata({
   path: "/products",
 });
 
+// Force dynamic: page reads searchParams (filters) and calls the backend API.
+// Avoids build-time API calls to Render Free Tier (cold start timeout).
+export const dynamic = "force-dynamic";
+
 interface ProductsPageProps {
   searchParams?: Record<string, string | string[] | undefined>;
 }
