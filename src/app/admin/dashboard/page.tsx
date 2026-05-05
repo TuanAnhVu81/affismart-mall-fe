@@ -45,10 +45,30 @@ import type { OrderSummary } from "@/types/order.types";
 const shortLabel = (value: string, maxLength = 18) =>
   value.length > maxLength ? `${value.slice(0, maxLength - 1)}...` : value;
 
+const BUSINESS_TIME_ZONE = "Asia/Bangkok";
+
 const trendDateFormatter = new Intl.DateTimeFormat("en-US", {
   month: "short",
   day: "2-digit",
+  timeZone: BUSINESS_TIME_ZONE,
 });
+
+const trendDateKeyFormatter = new Intl.DateTimeFormat("en-CA", {
+  day: "2-digit",
+  month: "2-digit",
+  timeZone: BUSINESS_TIME_ZONE,
+  year: "numeric",
+});
+
+const getBusinessDateKey = (value: string) => {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  return trendDateKeyFormatter.format(date);
+};
 
 const buildRevenueTrend = (orders: OrderSummary[]): AnalyticsChartDatum[] => {
   const revenueByDate = new Map<string, number>();
@@ -58,12 +78,11 @@ const buildRevenueTrend = (orders: OrderSummary[]): AnalyticsChartDatum[] => {
       return;
     }
 
-    const date = new Date(order.createdAt);
-    if (Number.isNaN(date.getTime())) {
+    const key = getBusinessDateKey(order.createdAt);
+    if (!key) {
       return;
     }
 
-    const key = date.toISOString().slice(0, 10);
     revenueByDate.set(key, (revenueByDate.get(key) ?? 0) + order.totalAmount);
   });
 
